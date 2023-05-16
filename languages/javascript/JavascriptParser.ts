@@ -1,4 +1,4 @@
-import HashData from "../../../../utils/HashData";
+import HashData from "../../HashData";
 import { ParserBase } from "../../ParserBase";
 import { ANTLRInputStream, CommonTokenStream, TokenStreamRewriter } from 'antlr4ts';
 import { ParseTreeWalker } from 'antlr4ts/tree/ParseTreeWalker'

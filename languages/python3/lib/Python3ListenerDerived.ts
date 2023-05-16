@@ -1,9 +1,8 @@
 import { TokenStreamRewriter } from "antlr4ts";
 import { Python3Listener } from "./Python3Listener";
-import { Expr_stmt_singleContext, FuncbodyContext, FunccallnameContext, FuncdefContext, NameContext, StringContext, SuiteContext } from "./Python3Parser";
-import HashData from "../../../../../utils/HashData";
+import { Expr_stmt_singleContext, FuncbodyContext, FunccallnameContext, FuncdefContext, NameContext, StringContext } from "./Python3Parser";
+import HashData from "../../../HashData";
 import md5 from "md5";
-import { TerminalNode } from "antlr4ts/tree/TerminalNode";
 
 export default class P3Listener implements Python3Listener {
     protected minMethodSize: number

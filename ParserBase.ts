@@ -1,4 +1,4 @@
-import HashData from "../../utils/HashData"
+import HashData from "./HashData"
 
 /**
  * The interface each language parser must implement

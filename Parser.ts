@@ -6,8 +6,6 @@ import * as fs from 'fs'
 import path from 'path'
 import XMLParser from "./srcML/XmlParser";
 
-const storageDir = '.tmp'
-
 export enum XMLSupportedLanguage {
     CPP = "C++",
     CSHARP = "C#",
@@ -78,7 +76,7 @@ export default class Parser {
      * and the values are HashData objects containing data about the parsed functions.
      */
     public static async ParseFiles({path, files}: {path?: string, files?: string[]}): Promise<{filenames: string[], result: HashData[]}> {
-        files ??= getFiles(`${storageDir}/${path}`)
+        files ??= getFiles(path)
         const filenames: string[] = []
         let result: HashData[] = []
         files.forEach(file => {

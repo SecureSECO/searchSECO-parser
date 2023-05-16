@@ -1,12 +1,11 @@
 import md5 from "md5";
-import HashData from "../../../utils/HashData";
+import HashData from "../HashData";
 import { Language } from "../Parser";
 import { ParserBase } from "../ParserBase";
 import { execSync } from 'child_process'
-import { Parser} from 'xml2js'
 import { Node, TagData } from './Node'
 import StringStream from "./StringStream";
-import { AbstractionData, GetHashable } from "./AbstractionData";
+import { GetHashable } from "./AbstractionData";
 
 
 export default class XMLParser extends ParserBase {
@@ -14,15 +13,14 @@ export default class XMLParser extends ParserBase {
     private _inFunction: boolean = false
     private _parseFurther: boolean = true
     private _hashes: HashData[] = []
-    private _current: Node
-    private _tree: Node
+    private _current: Node | undefined
+    private _tree: Node | undefined
     private readonly _minFunctionChars: number
     private readonly _minFunctionLines: number
     private _lineNumber: number = 0
     private _startLastFunction: number = 0
     private _currentFileName: string = ''
     private _functionCount: number = 0
-
 
     constructor(lang: Language, minFunctionChars: number = 0, minFunctionLines: number = 0) {
         super(true)
@@ -43,7 +41,7 @@ export default class XMLParser extends ParserBase {
     }
 
     private handleClosingTag(tagData: TagData) {
-        if (tagData.tag.substring(1) !== this._current.GetTag()) {
+        if (tagData.tag.substring(1) !== this._current?.GetTag()) {
             this._tree = new Node("unknown")
             this._current = this._tree
             this._inFunction = false
@@ -64,7 +62,7 @@ export default class XMLParser extends ParserBase {
                 this._functionCount++
             }
 
-            prev.RemoveNode(this._current)
+            prev?.RemoveNode(this._current)
             this._inFunction = false
             this._current = undefined
         }
@@ -86,7 +84,7 @@ export default class XMLParser extends ParserBase {
             tagData.tag = tagData.tag.slice(0,-1) + " /"
 
         const node = new Node(tagData.tag, tagData.textInTag, this._current)
-        this._current.AddNode(node)
+        this._current?.AddNode(node)
         if (!(tagData.textInTag.length > 0 && tagData.textInTag[tagData.textInTag.length-1] === "/")) {
             this._current = node
         }
@@ -103,7 +101,7 @@ export default class XMLParser extends ParserBase {
         this._tree = new Node("unknown")
         const firstTag = this.getNextTag(stream)
         if (stream.Empty() && firstTag.tag === "")
-            return
+            return []
 		if (firstTag.tag !== "?xml") {
             this._tree = undefined
 			return []
@@ -136,6 +134,7 @@ export default class XMLParser extends ParserBase {
         }
         catch (err) {
             console.log(err.toString())
+            return ''
         }
     }
 
