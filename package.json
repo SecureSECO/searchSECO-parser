@@ -1,0 +1,19 @@
+{
+  "name": "searchseco-parser",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "gen-js": "npx antlr4ts-cli -o ./src/searchseco/parser/languages/javascript/lib -visitor ./src/searchseco/parser/languages/javascript/grammars/JavaScriptLexer.g4 && npx antlr4ts-cli -o ./src/searchseco/parser/languages/javascript/lib -visitor ./src/searchseco/parser/languages/javascript/grammars/JavaScriptParser.g4",
+    "gen-py3": "npx antlr4ts-cli -o ./src/searchseco/parser/languages/python3/lib -visitor ./src/searchseco/parser/languages/python3/grammars/Python3.g4"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "antlr4ts": "^0.5.0-alpha.4"
+  },
+  "devDependencies": {
+    "antlr4ts-cli": "^0.5.0-alpha.4"
+  }
+}

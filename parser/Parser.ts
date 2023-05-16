@@ -1,8 +1,7 @@
-import HashData from "../../utils/HashData";
+import HashData from "./HashData";
 import { IParser } from "./ParserBase";
 import Javascript from "./languages/javascript/JavascriptParser";
 import Python from "./languages/python3/PythonParser";
-import CPP from './languages/cpp/CPPParser'
 import * as fs from 'fs'
 import path from 'path'
 import XMLParser from "./srcML/XmlParser";
