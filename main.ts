@@ -1,4 +1,4 @@
-import Parser from './Parser'
+import Parser from './src/Parser'
 import * as readline from 'readline'
 
 (async () => {
