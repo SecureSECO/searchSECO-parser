@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "gen-js": "npx antlr4ts-cli -o ./src/searchseco/parser/languages/javascript/lib -visitor ./src/searchseco/parser/languages/javascript/grammars/JavaScriptLexer.g4 && npx antlr4ts-cli -o ./src/searchseco/parser/languages/javascript/lib -visitor ./src/searchseco/parser/languages/javascript/grammars/JavaScriptParser.g4",
-    "gen-py3": "npx antlr4ts-cli -o ./src/searchseco/parser/languages/python3/lib -visitor ./src/searchseco/parser/languages/python3/grammars/Python3.g4",
+    "gen-js": "npx antlr4ts-cli -o ./src/languages/javascript/lib -visitor ./src/languages/javascript/grammars/JavaScriptLexer.g4 && npx antlr4ts-cli -o ./src/languages/javascript/lib -visitor ./src/languages/javascript/grammars/JavaScriptParser.g4",
+    "gen-py3": "npx antlr4ts-cli -o ./src/languages/python3/lib -visitor ./src/languages/python3/grammars/Python3.g4",
     "build": "npm run build-ts",
     "build-ts": "tsc"
   },

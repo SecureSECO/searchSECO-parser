@@ -22,18 +22,18 @@ function nodeToString(node: Node, abstraction: AbstractionData, inFunction: bool
         case "name": {
             let parent = node.GetPrevious()
             if (parent) {
-                while (parent?.GetTag() === "name") 
+                while (parent.GetTag() === "name") 
                     parent = parent.GetPrevious()
 
-                if (parent?.GetTag() === "type") {
+                if (parent.GetTag() === "type") {
                     if (inFunction) 
                         abstraction.AddString(content)
                     return
-                } else if (parent?.GetTag() === "call") {
+                } else if (parent.GetTag() === "call") {
                     if (inFunction)
                         abstraction.AddString("funccall")
                     return
-                } else if (parent?.GetTag() === "function") {
+                } else if (parent.GetTag() === "function") {
                     if (inFunction)
                         abstraction.AddString("funcname")
                     abstraction.SetFunctionName(content)

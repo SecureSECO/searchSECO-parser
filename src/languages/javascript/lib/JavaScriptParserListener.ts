@@ -1,15 +1,17 @@
-// Generated from ./src/parser/languages/javascript/grammars/JavaScriptParser.g4 by ANTLR 4.9.0-SNAPSHOT
+// Generated from ./src/searchseco/parser/languages/javascript/grammars/JavaScriptParser.g4 by ANTLR 4.9.0-SNAPSHOT
+
+
+import JavaScriptParserBase from "../grammars/javascript/JavaScriptParserBase";
 
 
 import { ParseTreeListener } from "antlr4ts/tree/ParseTreeListener";
 
 import { FunctionExpressionContext } from "./JavaScriptParser";
 import { ClassExpressionContext } from "./JavaScriptParser";
-import { OptionalChainExpressionContext } from "./JavaScriptParser";
 import { MemberIndexExpressionContext } from "./JavaScriptParser";
 import { MemberDotExpressionContext } from "./JavaScriptParser";
-import { NewExpressionContext } from "./JavaScriptParser";
 import { ArgumentsExpressionContext } from "./JavaScriptParser";
+import { NewExpressionContext } from "./JavaScriptParser";
 import { MetaExpressionContext } from "./JavaScriptParser";
 import { PostIncrementExpressionContext } from "./JavaScriptParser";
 import { PostDecreaseExpressionContext } from "./JavaScriptParser";
@@ -84,7 +86,7 @@ import { DeclarationContext } from "./JavaScriptParser";
 import { VariableStatementContext } from "./JavaScriptParser";
 import { VariableDeclarationListContext } from "./JavaScriptParser";
 import { VariableDeclarationContext } from "./JavaScriptParser";
-import { EmptyStatement_Context } from "./JavaScriptParser";
+import { EmptyStatementContext } from "./JavaScriptParser";
 import { ExpressionStatementContext } from "./JavaScriptParser";
 import { IfStatementContext } from "./JavaScriptParser";
 import { IterationStatementContext } from "./JavaScriptParser";
@@ -114,6 +116,7 @@ import { FormalParameterListContext } from "./JavaScriptParser";
 import { FormalParameterArgContext } from "./JavaScriptParser";
 import { LastFormalParameterArgContext } from "./JavaScriptParser";
 import { FunctionBodyContext } from "./JavaScriptParser";
+import { ParseFunctionBodyContext } from "./JavaScriptParser";
 import { SourceElementsContext } from "./JavaScriptParser";
 import { ArrayLiteralContext } from "./JavaScriptParser";
 import { ElementListContext } from "./JavaScriptParser";
@@ -131,8 +134,6 @@ import { ArrowFunctionParametersContext } from "./JavaScriptParser";
 import { ArrowFunctionBodyContext } from "./JavaScriptParser";
 import { AssignmentOperatorContext } from "./JavaScriptParser";
 import { LiteralContext } from "./JavaScriptParser";
-import { TemplateStringLiteralContext } from "./JavaScriptParser";
-import { TemplateStringAtomContext } from "./JavaScriptParser";
 import { NumericLiteralContext } from "./JavaScriptParser";
 import { BigintLiteralContext } from "./JavaScriptParser";
 import { GetterContext } from "./JavaScriptParser";
@@ -177,19 +178,6 @@ export interface JavaScriptParserListener extends ParseTreeListener {
 	exitClassExpression?: (ctx: ClassExpressionContext) => void;
 
 	/**
-	 * Enter a parse tree produced by the `OptionalChainExpression`
-	 * labeled alternative in `JavaScriptParser.singleExpression`.
-	 * @param ctx the parse tree
-	 */
-	enterOptionalChainExpression?: (ctx: OptionalChainExpressionContext) => void;
-	/**
-	 * Exit a parse tree produced by the `OptionalChainExpression`
-	 * labeled alternative in `JavaScriptParser.singleExpression`.
-	 * @param ctx the parse tree
-	 */
-	exitOptionalChainExpression?: (ctx: OptionalChainExpressionContext) => void;
-
-	/**
 	 * Enter a parse tree produced by the `MemberIndexExpression`
 	 * labeled alternative in `JavaScriptParser.singleExpression`.
 	 * @param ctx the parse tree
@@ -216,19 +204,6 @@ export interface JavaScriptParserListener extends ParseTreeListener {
 	exitMemberDotExpression?: (ctx: MemberDotExpressionContext) => void;
 
 	/**
-	 * Enter a parse tree produced by the `NewExpression`
-	 * labeled alternative in `JavaScriptParser.singleExpression`.
-	 * @param ctx the parse tree
-	 */
-	enterNewExpression?: (ctx: NewExpressionContext) => void;
-	/**
-	 * Exit a parse tree produced by the `NewExpression`
-	 * labeled alternative in `JavaScriptParser.singleExpression`.
-	 * @param ctx the parse tree
-	 */
-	exitNewExpression?: (ctx: NewExpressionContext) => void;
-
-	/**
 	 * Enter a parse tree produced by the `ArgumentsExpression`
 	 * labeled alternative in `JavaScriptParser.singleExpression`.
 	 * @param ctx the parse tree
@@ -240,6 +215,19 @@ export interface JavaScriptParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitArgumentsExpression?: (ctx: ArgumentsExpressionContext) => void;
+
+	/**
+	 * Enter a parse tree produced by the `NewExpression`
+	 * labeled alternative in `JavaScriptParser.singleExpression`.
+	 * @param ctx the parse tree
+	 */
+	enterNewExpression?: (ctx: NewExpressionContext) => void;
+	/**
+	 * Exit a parse tree produced by the `NewExpression`
+	 * labeled alternative in `JavaScriptParser.singleExpression`.
+	 * @param ctx the parse tree
+	 */
+	exitNewExpression?: (ctx: NewExpressionContext) => void;
 
 	/**
 	 * Enter a parse tree produced by the `MetaExpression`
@@ -1168,15 +1156,15 @@ export interface JavaScriptParserListener extends ParseTreeListener {
 	exitVariableDeclaration?: (ctx: VariableDeclarationContext) => void;
 
 	/**
-	 * Enter a parse tree produced by `JavaScriptParser.emptyStatement_`.
+	 * Enter a parse tree produced by `JavaScriptParser.emptyStatement`.
 	 * @param ctx the parse tree
 	 */
-	enterEmptyStatement_?: (ctx: EmptyStatement_Context) => void;
+	enterEmptyStatement?: (ctx: EmptyStatementContext) => void;
 	/**
-	 * Exit a parse tree produced by `JavaScriptParser.emptyStatement_`.
+	 * Exit a parse tree produced by `JavaScriptParser.emptyStatement`.
 	 * @param ctx the parse tree
 	 */
-	exitEmptyStatement_?: (ctx: EmptyStatement_Context) => void;
+	exitEmptyStatement?: (ctx: EmptyStatementContext) => void;
 
 	/**
 	 * Enter a parse tree produced by `JavaScriptParser.expressionStatement`.
@@ -1498,6 +1486,17 @@ export interface JavaScriptParserListener extends ParseTreeListener {
 	exitFunctionBody?: (ctx: FunctionBodyContext) => void;
 
 	/**
+	 * Enter a parse tree produced by `JavaScriptParser.parseFunctionBody`.
+	 * @param ctx the parse tree
+	 */
+	enterParseFunctionBody?: (ctx: ParseFunctionBodyContext) => void;
+	/**
+	 * Exit a parse tree produced by `JavaScriptParser.parseFunctionBody`.
+	 * @param ctx the parse tree
+	 */
+	exitParseFunctionBody?: (ctx: ParseFunctionBodyContext) => void;
+
+	/**
 	 * Enter a parse tree produced by `JavaScriptParser.sourceElements`.
 	 * @param ctx the parse tree
 	 */
@@ -1683,28 +1682,6 @@ export interface JavaScriptParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitLiteral?: (ctx: LiteralContext) => void;
-
-	/**
-	 * Enter a parse tree produced by `JavaScriptParser.templateStringLiteral`.
-	 * @param ctx the parse tree
-	 */
-	enterTemplateStringLiteral?: (ctx: TemplateStringLiteralContext) => void;
-	/**
-	 * Exit a parse tree produced by `JavaScriptParser.templateStringLiteral`.
-	 * @param ctx the parse tree
-	 */
-	exitTemplateStringLiteral?: (ctx: TemplateStringLiteralContext) => void;
-
-	/**
-	 * Enter a parse tree produced by `JavaScriptParser.templateStringAtom`.
-	 * @param ctx the parse tree
-	 */
-	enterTemplateStringAtom?: (ctx: TemplateStringAtomContext) => void;
-	/**
-	 * Exit a parse tree produced by `JavaScriptParser.templateStringAtom`.
-	 * @param ctx the parse tree
-	 */
-	exitTemplateStringAtom?: (ctx: TemplateStringAtomContext) => void;
 
 	/**
 	 * Enter a parse tree produced by `JavaScriptParser.numericLiteral`.

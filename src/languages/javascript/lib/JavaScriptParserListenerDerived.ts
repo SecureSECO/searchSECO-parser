@@ -6,7 +6,8 @@ import {
     AnonymousFunctionDeclContext, 
     FunctionBodyContext, 
     FunctionDeclarationContext, 
-    IdentifierContext } 
+    IdentifierContext, 
+    ParseFunctionBodyContext} 
     from "./JavaScriptParser";
 
 export default class JSListener implements JavaScriptParserListener {
@@ -92,11 +93,11 @@ export default class JSListener implements JavaScriptParserListener {
         }
     }
 
-    enterFunctionBody(ctx: FunctionBodyContext) {
+    enterParseFunctionBody(ctx: ParseFunctionBodyContext) {
         this.inNonAbsoluteFunctionDef = false
     }
 
-    exitFunctionBody(ctx: FunctionBodyContext) {
+    exitParseFunctionBody(ctx: ParseFunctionBodyContext) {
         this.functionBodies.pop()
 
         const tsr = this.tsrs[this.tsrs.length-1]

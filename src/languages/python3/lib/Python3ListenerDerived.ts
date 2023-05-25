@@ -4,7 +4,7 @@ import { Expr_stmt_singleContext, FuncbodyContext, FunccallnameContext, FuncdefC
 import HashData from "../../../HashData";
 import md5 from "md5";
 
-export default class P3Listener implements Python3Listener {
+export default class CustomPython3Listener implements Python3Listener {
     protected minMethodSize: number
     protected minFunctionChars: number
     protected readonly baseTSR: TokenStreamRewriter

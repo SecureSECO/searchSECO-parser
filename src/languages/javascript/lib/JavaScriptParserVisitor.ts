@@ -1,15 +1,17 @@
-// Generated from ./src/parser/languages/javascript/grammars/JavaScriptParser.g4 by ANTLR 4.9.0-SNAPSHOT
+// Generated from ./src/searchseco/parser/languages/javascript/grammars/JavaScriptParser.g4 by ANTLR 4.9.0-SNAPSHOT
+
+
+import JavaScriptParserBase from "../grammars/javascript/JavaScriptParserBase";
 
 
 import { ParseTreeVisitor } from "antlr4ts/tree/ParseTreeVisitor";
 
 import { FunctionExpressionContext } from "./JavaScriptParser";
 import { ClassExpressionContext } from "./JavaScriptParser";
-import { OptionalChainExpressionContext } from "./JavaScriptParser";
 import { MemberIndexExpressionContext } from "./JavaScriptParser";
 import { MemberDotExpressionContext } from "./JavaScriptParser";
-import { NewExpressionContext } from "./JavaScriptParser";
 import { ArgumentsExpressionContext } from "./JavaScriptParser";
+import { NewExpressionContext } from "./JavaScriptParser";
 import { MetaExpressionContext } from "./JavaScriptParser";
 import { PostIncrementExpressionContext } from "./JavaScriptParser";
 import { PostDecreaseExpressionContext } from "./JavaScriptParser";
@@ -84,7 +86,7 @@ import { DeclarationContext } from "./JavaScriptParser";
 import { VariableStatementContext } from "./JavaScriptParser";
 import { VariableDeclarationListContext } from "./JavaScriptParser";
 import { VariableDeclarationContext } from "./JavaScriptParser";
-import { EmptyStatement_Context } from "./JavaScriptParser";
+import { EmptyStatementContext } from "./JavaScriptParser";
 import { ExpressionStatementContext } from "./JavaScriptParser";
 import { IfStatementContext } from "./JavaScriptParser";
 import { IterationStatementContext } from "./JavaScriptParser";
@@ -114,6 +116,7 @@ import { FormalParameterListContext } from "./JavaScriptParser";
 import { FormalParameterArgContext } from "./JavaScriptParser";
 import { LastFormalParameterArgContext } from "./JavaScriptParser";
 import { FunctionBodyContext } from "./JavaScriptParser";
+import { ParseFunctionBodyContext } from "./JavaScriptParser";
 import { SourceElementsContext } from "./JavaScriptParser";
 import { ArrayLiteralContext } from "./JavaScriptParser";
 import { ElementListContext } from "./JavaScriptParser";
@@ -131,8 +134,6 @@ import { ArrowFunctionParametersContext } from "./JavaScriptParser";
 import { ArrowFunctionBodyContext } from "./JavaScriptParser";
 import { AssignmentOperatorContext } from "./JavaScriptParser";
 import { LiteralContext } from "./JavaScriptParser";
-import { TemplateStringLiteralContext } from "./JavaScriptParser";
-import { TemplateStringAtomContext } from "./JavaScriptParser";
 import { NumericLiteralContext } from "./JavaScriptParser";
 import { BigintLiteralContext } from "./JavaScriptParser";
 import { GetterContext } from "./JavaScriptParser";
@@ -170,14 +171,6 @@ export interface JavaScriptParserVisitor<Result> extends ParseTreeVisitor<Result
 	visitClassExpression?: (ctx: ClassExpressionContext) => Result;
 
 	/**
-	 * Visit a parse tree produced by the `OptionalChainExpression`
-	 * labeled alternative in `JavaScriptParser.singleExpression`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitOptionalChainExpression?: (ctx: OptionalChainExpressionContext) => Result;
-
-	/**
 	 * Visit a parse tree produced by the `MemberIndexExpression`
 	 * labeled alternative in `JavaScriptParser.singleExpression`.
 	 * @param ctx the parse tree
@@ -194,20 +187,20 @@ export interface JavaScriptParserVisitor<Result> extends ParseTreeVisitor<Result
 	visitMemberDotExpression?: (ctx: MemberDotExpressionContext) => Result;
 
 	/**
-	 * Visit a parse tree produced by the `NewExpression`
-	 * labeled alternative in `JavaScriptParser.singleExpression`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitNewExpression?: (ctx: NewExpressionContext) => Result;
-
-	/**
 	 * Visit a parse tree produced by the `ArgumentsExpression`
 	 * labeled alternative in `JavaScriptParser.singleExpression`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	visitArgumentsExpression?: (ctx: ArgumentsExpressionContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by the `NewExpression`
+	 * labeled alternative in `JavaScriptParser.singleExpression`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitNewExpression?: (ctx: NewExpressionContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by the `MetaExpression`
@@ -784,11 +777,11 @@ export interface JavaScriptParserVisitor<Result> extends ParseTreeVisitor<Result
 	visitVariableDeclaration?: (ctx: VariableDeclarationContext) => Result;
 
 	/**
-	 * Visit a parse tree produced by `JavaScriptParser.emptyStatement_`.
+	 * Visit a parse tree produced by `JavaScriptParser.emptyStatement`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	visitEmptyStatement_?: (ctx: EmptyStatement_Context) => Result;
+	visitEmptyStatement?: (ctx: EmptyStatementContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `JavaScriptParser.expressionStatement`.
@@ -994,6 +987,13 @@ export interface JavaScriptParserVisitor<Result> extends ParseTreeVisitor<Result
 	visitFunctionBody?: (ctx: FunctionBodyContext) => Result;
 
 	/**
+	 * Visit a parse tree produced by `JavaScriptParser.parseFunctionBody`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitParseFunctionBody?: (ctx: ParseFunctionBodyContext) => Result;
+
+	/**
 	 * Visit a parse tree produced by `JavaScriptParser.sourceElements`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -1111,20 +1111,6 @@ export interface JavaScriptParserVisitor<Result> extends ParseTreeVisitor<Result
 	 * @return the visitor result
 	 */
 	visitLiteral?: (ctx: LiteralContext) => Result;
-
-	/**
-	 * Visit a parse tree produced by `JavaScriptParser.templateStringLiteral`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitTemplateStringLiteral?: (ctx: TemplateStringLiteralContext) => Result;
-
-	/**
-	 * Visit a parse tree produced by `JavaScriptParser.templateStringAtom`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitTemplateStringAtom?: (ctx: TemplateStringAtomContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `JavaScriptParser.numericLiteral`.

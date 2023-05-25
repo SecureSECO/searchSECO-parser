@@ -93,7 +93,7 @@ export default class Parser {
             parser.AddFile(filename, file, content)
         })
 
-        await Promise.all([...this.parsers.values()].map(async (p: IParser) => {
+        await Promise.all(Array.from(this.parsers.values()).map(async (p: IParser) => {
             const content = await p.Parse()
             result.push(...content)
         }))

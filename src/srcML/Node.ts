@@ -1,3 +1,5 @@
+import StringStream from "./StringStream";
+
 
 export enum Tag {
     "name",
@@ -206,7 +208,7 @@ export class Node {
         this._content = content
     }
 
-    public GetPrevious() : Node | undefined {
+    public GetPrevious() : Node {
         return this._previous
     }
 

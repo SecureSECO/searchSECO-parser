@@ -13,11 +13,11 @@ describe('The parser', () => {
     }
 
     beforeAll(async () => {
-        results["js"] = (await Parser.ParseFiles({ files: [ 'tests/parser/to_parse/a.js' ] })).result
-        results["python"] = (await Parser.ParseFiles({ files: [ 'tests/parser/to_parse/a.py' ] })).result
-        results["cpp"] = (await Parser.ParseFiles({ files: [ 'tests/parser/to_parse/a.cpp' ] })).result
-        results["cs"] = (await Parser.ParseFiles({ files: [ 'tests/parser/to_parse/a.cs' ] })).result
-        results["java"] = (await Parser.ParseFiles({ files: [ 'tests/parser/to_parse/a.java' ] })).result
+        results["js"] = (await Parser.ParseFiles({ files: [ 'tests/to_parse/a.js' ] })).result
+        results["python"] = (await Parser.ParseFiles({ files: [ 'tests/to_parse/a.py' ] })).result
+        results["cpp"] = (await Parser.ParseFiles({ files: [ 'tests/to_parse/a.cpp' ] })).result
+        results["cs"] = (await Parser.ParseFiles({ files: [ 'tests/to_parse/a.cs' ] })).result
+        results["java"] = (await Parser.ParseFiles({ files: [ 'tests/to_parse/a.java' ] })).result
     })
 
     describe("extracts correct function hashes from", () => {
