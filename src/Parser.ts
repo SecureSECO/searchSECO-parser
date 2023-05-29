@@ -55,17 +55,20 @@ function getFileNameAndLanguage(filepath: string): {filename: string, lang: Lang
     }
 }
 
+const MIN_FUNCTION_CHARS = 50
+const MIN_METHOD_LINES = 6
+
 /**
  * The Javascript implementation of the SearchSECO parser. 
  * This parser is a static class that holds references to the individual language parsers.
  */
 export default class Parser {
     static parsers: Map<Language, IParser> = new Map<Language, IParser>([
-        [Language.JS, new Javascript()],
-        [Language.PYTHON, new Python()],
-        [Language.CPP, new XMLParser(Language.CPP)],
-        [Language.CSHARP, new XMLParser(Language.CSHARP)],
-        [Language.JAVA, new XMLParser(Language.JAVA)]
+        [Language.JS, new Javascript(MIN_METHOD_LINES, MIN_FUNCTION_CHARS)],
+        [Language.PYTHON, new Python(MIN_METHOD_LINES, MIN_FUNCTION_CHARS)],
+        [Language.CPP, new XMLParser(Language.CPP, MIN_FUNCTION_CHARS, MIN_METHOD_LINES)],
+        [Language.CSHARP, new XMLParser(Language.CSHARP, MIN_FUNCTION_CHARS, MIN_METHOD_LINES)],
+        [Language.JAVA, new XMLParser(Language.JAVA, MIN_FUNCTION_CHARS, MIN_METHOD_LINES)]
     ]);
 
     /** 

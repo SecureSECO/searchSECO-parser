@@ -6,13 +6,17 @@ import { JavaScriptLexer } from "./lib/JavaScriptLexer";
 import { JavaScriptParser } from "./lib/JavaScriptParser"
 import JSListener from "./lib/JavaScriptParserListenerDerived";
 
-
 /**
  * The implementation of a Javascript parser. This parser inherits from `ParserBase`.
  */
 export default class Javascript extends ParserBase {
-    constructor() {
+    private _minMethodSize: number
+    private _minFunctionChars: number
+
+    constructor(minMethodSize: number, minFunctionChars: number) {
         super(false)
+        this._minMethodSize = minMethodSize
+        this._minFunctionChars = minFunctionChars
     }
 
     protected override parseSingle(data: string, filename: string): Promise<HashData[]> {
@@ -27,7 +31,7 @@ export default class Javascript extends ParserBase {
         parser.buildParseTree = true
 
         const tree = parser.program()
-        const listener = new JSListener(rewriter, filename, 0, 0)
+        const listener = new JSListener(rewriter, filename, this._minMethodSize, this._minFunctionChars)
 
         ParseTreeWalker.DEFAULT.walk(listener, tree)
 

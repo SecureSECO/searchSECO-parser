@@ -10,8 +10,13 @@ import Python3Listener from "./lib/Python3ListenerDerived";
  * The implementation of a Python3 parser. This parser inherits from `ParserBase`.
  */
 export default class Python extends ParserBase {
-    constructor() {
+    private _minMethodSize: number
+    private _minFunctionChars: number
+
+    constructor(minMethodSize: number, minFunctionChars: number) {
         super(false)
+        this._minMethodSize = minMethodSize
+        this._minFunctionChars = minFunctionChars
     }
 
     protected override parseSingle(data: string, filename: string): Promise<HashData[]> {
@@ -27,7 +32,7 @@ export default class Python extends ParserBase {
 
         const tree = parser.file_input()
 
-        const listener = new Python3Listener(rewriter, filename, 0, 0)
+        const listener = new Python3Listener(rewriter, filename, this._minMethodSize, this._minFunctionChars)
 
         ParseTreeWalker.DEFAULT.walk(listener, tree)
 
