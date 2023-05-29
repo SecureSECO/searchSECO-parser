@@ -55,8 +55,8 @@ function getFileNameAndLanguage(filepath: string): {filename: string, lang: Lang
     }
 }
 
-const MIN_FUNCTION_CHARS = 50
-const MIN_METHOD_LINES = 6
+const MIN_FUNCTION_CHARS = 0
+const MIN_METHOD_LINES = 0
 
 /**
  * The Javascript implementation of the SearchSECO parser. 
