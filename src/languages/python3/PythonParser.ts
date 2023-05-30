@@ -33,6 +33,9 @@ export default class Python extends ParserBase {
         }
 
         const parser = new Python3Parser(tokens)
+
+        parser.removeErrorListeners()
+
         const rewriter = new TokenStreamRewriter(tokens)
 
         parser.buildParseTree = true
