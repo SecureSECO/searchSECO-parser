@@ -46,7 +46,7 @@ export default class XMLParser extends ParserBase {
     private handleClosingTag(tagData: TagData) {
         if (tagData.tag.substring(1) !== this._current.GetTag()) {
 
-            Logger.Warning(`Closing tags don't line up in ${this._currentFileName} on line ${this._lineNumber}, skipping function`, Logger.GetCallerLocation())
+            Logger.Debug(`Closing tags don't line up in ${this._currentFileName} on line ${this._lineNumber}, skipping function`, Logger.GetCallerLocation())
 
             this._tree = new Node("unknown")
             this._current = this._tree
@@ -104,7 +104,7 @@ export default class XMLParser extends ParserBase {
         this._tree = new Node("unknown")
         const firstTag = this.getNextTag(stream)
         if (stream.Empty() && firstTag.tag === "") {
-            Logger.Debug("SrcML returned nothing.", Logger.GetCallerLocation())
+            Logger.Debug("SrcML returned nothing", Logger.GetCallerLocation())
             return []
         }
 		if (firstTag.tag !== "?xml") {
