@@ -92,7 +92,6 @@ export default class Parser {
             Logger.Debug(`Parsing ${filename}`, Logger.GetCallerLocation())
 
             if (!lang) {
-                Logger.Debug(`Could not recognise language`, Logger.GetCallerLocation())
                 return
             }
             
