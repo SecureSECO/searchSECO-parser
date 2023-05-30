@@ -45,7 +45,7 @@ function getFiles(dir: string): string[] {
  * @returns A tuple containing the filename and the language. If the language is not supported, undefined is returned.
  */
 function getFileNameAndLanguage(filepath: string): {filename: string, lang: Language | undefined} {
-    const filename = filepath.split('\\').pop()
+    const filename = filepath.replace('\\', '/').split('/').pop()
     switch (filename?.split('.').pop()?.toLowerCase()) {
         case "py": return { filename, lang: Language.PYTHON } 
         case "js": return { filename, lang: Language.JS }
