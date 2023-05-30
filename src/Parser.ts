@@ -5,7 +5,7 @@ import Python from "./languages/python3/PythonParser";
 import * as fs from 'fs'
 import path from 'path'
 import XMLParser from "./srcML/XmlParser";
-import Logger from "./searchSECO-logger/src/Logger";
+import Logger, { Verbosity } from "./searchSECO-logger/src/Logger";
 
 export enum XMLSupportedLanguage {
     CPP = "C++",
@@ -79,7 +79,7 @@ export default class Parser {
      * @returns A tuple containing the list of filenames parsed, and a Map. The keys of this map are the file names, 
      * and the values are HashData objects containing data about the parsed functions.
      */
-    public static async ParseFiles({path, files}: {path?: string, files?: string[]}, verbosity: number = 5): Promise<{filenames: string[], result: HashData[]}> {
+    public static async ParseFiles({path, files}: {path?: string, files?: string[]}, verbosity: Verbosity = Verbosity.DEBUG): Promise<{filenames: string[], result: HashData[]}> {
         Logger.SetModule("parser")
         Logger.SetVerbosity(verbosity)
 
