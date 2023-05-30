@@ -139,7 +139,6 @@ export default class XMLParser extends ParserBase {
             return stdout.toString()
         }
         catch (err) {
-            console.log(err.toString())
             return ''
         }
     }
