@@ -29,6 +29,8 @@ export type Language = XMLSupportedLanguage | ANTLRSupportedLanguage
 export function getAllFiles(dir: string): string[] {
     function recursivelyGetFiles(currDir: string, acc: string[]): string[] {
         fs.readdirSync(currDir).forEach((file: string) => {
+            if (/^.git/.test(file))
+                return
             const abs_path = path.join(currDir, file);
             if (fs.statSync(abs_path).isDirectory()) return recursivelyGetFiles(abs_path, acc);
             else acc.push(abs_path);
