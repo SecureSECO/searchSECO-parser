@@ -26,7 +26,7 @@ export type Language = XMLSupportedLanguage | ANTLRSupportedLanguage
  * @param dir The root dir to list files from
  * @returns A list of all file paths found. The paths are relative to the specified dir.
  */
-function getFiles(dir: string): string[] {
+export function getAllFiles(dir: string): string[] {
     function recursivelyGetFiles(currDir: string, acc: string[]): string[] {
         fs.readdirSync(currDir).forEach((file: string) => {
             const abs_path = path.join(currDir, file);
@@ -83,7 +83,7 @@ export default class Parser {
         Logger.SetModule("parser")
         Logger.SetVerbosity(verbosity)
 
-        files ??= getFiles(path)
+        files ??= getAllFiles(path)
         const filenames: string[] = []
         let result: HashData[] = []
         files.forEach(file => {
