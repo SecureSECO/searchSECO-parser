@@ -89,8 +89,6 @@ export default class Parser {
         files.forEach(file => {
             const { filename, lang } = getFileNameAndLanguage(file)
 
-            Logger.Debug(`Parsing ${filename}`, Logger.GetCallerLocation())
-
             if (!lang) {
                 return
             }
@@ -103,6 +101,7 @@ export default class Parser {
                 return
             }
 
+            Logger.Debug(`Parsing ${filename}`, Logger.GetCallerLocation())
             parser.AddFile(filename, file, content)
         })
 
