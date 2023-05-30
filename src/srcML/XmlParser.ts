@@ -145,7 +145,7 @@ export default class XMLParser extends ParserBase {
     }
 
     protected async parseSingle(data: string, filepath: string): Promise<HashData[]> {
-        const filename = filepath.replace('\\', '/').split('/').pop()
+        const filename = filepath.split(/\\|\//).pop()
         this._currentFileName = filename
         const xmlString = await this.parseToXML(filepath)
         const hashes = this.parseXMLStream(new StringStream(xmlString))
