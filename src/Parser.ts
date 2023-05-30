@@ -36,7 +36,7 @@ export function getAllFiles(dir: string): string[] {
         return acc
     }
 
-    return recursivelyGetFiles(dir, [])
+    return recursivelyGetFiles(dir.replace('\\', '/'), [])
 }
 
 /** 
