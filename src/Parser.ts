@@ -46,8 +46,8 @@ export function getAllFiles(dir: string): string[] {
  * @param filepath The path to extract the filename and language from.
  * @returns A tuple containing the filename and the language. If the language is not supported, undefined is returned.
  */
-function getFileNameAndLanguage(filepath: string): {filename: string, lang: Language | undefined} {
-    const filename = filepath.split(/\\|\//).pop()
+function getFileNameAndLanguage(filepath: string, basePath: string): {filename: string, lang: Language | undefined} {
+    const filename = filepath.replace(basePath, '.')
     switch (filename?.split('.').pop()?.toLowerCase()) {
         case "py": return { filename, lang: Language.PYTHON } 
         case "js": return { filename, lang: Language.JS }
@@ -76,34 +76,26 @@ export default class Parser {
 
     /** 
      * Parses a list of files or a whole directory based on a path. This method is static.
-     * @param path The optional path of the directory to parse all files from
-     * @param files The optional list of file paths to parse. If this list is not defined, the path parameter has to be set.
+     * @param basePath The path of the directory to parse all files from
      * @returns A tuple containing the list of filenames parsed, and a Map. The keys of this map are the file names, 
      * and the values are HashData objects containing data about the parsed functions.
      */
-    public static async ParseFiles({path, files}: {path?: string, files?: string[]}, verbosity: Verbosity = Verbosity.DEBUG): Promise<{filenames: string[], result: HashData[]}> {
+    public static async ParseFiles(basePath: string, verbosity: Verbosity = Verbosity.DEBUG): Promise<{filenames: string[], result: HashData[]}> {
         Logger.SetModule("parser")
         Logger.SetVerbosity(verbosity)
 
-        files ??= getAllFiles(path)
+        const files = getAllFiles(basePath)
+
         const filenames: string[] = []
         let result: HashData[] = []
         files.forEach(file => {
-            const { filename, lang } = getFileNameAndLanguage(file)
+            const { filename, lang } = getFileNameAndLanguage(file, basePath)
 
             if (!lang) {
                 return
             }
             
             filenames.push(filename)
-            let content = ''
-            try {
-                content = fs.readFileSync(file, 'utf-8')
-            } catch(e) {
-                Logger.Debug(`Cannot read file ${file}. Skipping`, Logger.GetCallerLocation())
-                return
-            }
-
             const parser = Parser.parsers.get(lang)
             if (!parser) {
                 Logger.Debug(`Could not associate a parser with specified language`, Logger.GetCallerLocation())
@@ -111,7 +103,7 @@ export default class Parser {
             }
 
             Logger.Debug(`Parsing ${filename}`, Logger.GetCallerLocation())
-            parser.AddFile(filename, file, content)
+            parser.AddFile(filename, basePath)
         })
 
         await Promise.all(Array.from(this.parsers.values()).map(async (p: IParser) => {

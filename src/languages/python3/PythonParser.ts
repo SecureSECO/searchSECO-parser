@@ -6,6 +6,8 @@ import { Python3Lexer } from "./lib/Python3Lexer";
 import { File_inputContext, Python3Parser } from "./lib/Python3Parser"
 import Python3Listener from "./lib/Python3ListenerDerived";
 import Logger from "../../searchSECO-logger/src/Logger";
+import fs from 'fs'
+import path from 'path'
 
 /**
  * The implementation of a Python3 parser. This parser inherits from `ParserBase`.
@@ -15,12 +17,20 @@ export default class Python extends ParserBase {
     private _minFunctionChars: number
 
     constructor(minMethodSize: number, minFunctionChars: number) {
-        super(false)
+        super()
         this._minMethodSize = minMethodSize
         this._minFunctionChars = minFunctionChars
     }
 
-    protected override parseSingle(data: string, filename: string): Promise<HashData[]> {
+    protected override parseSingle(basePath: string, fileName: string): Promise<HashData[]> {
+        let data = ''
+        try {
+            data = fs.readFileSync(path.join(basePath, fileName), 'utf-8')
+        } catch(e) {
+            Logger.Debug(`Cannot read file ${fileName}. Skipping`, Logger.GetCallerLocation())
+            return
+        }
+
         const chars = new ANTLRInputStream(data)
         const lexer = new Python3Lexer(chars)
         const tokens = new CommonTokenStream(lexer)
@@ -28,7 +38,7 @@ export default class Python extends ParserBase {
         try {
             tokens.fill()
         } catch(e) {
-            Logger.Warning(`Error while tokenizing file: ${filename}, skipping. Error: ${e}`, Logger.GetCallerLocation())
+            Logger.Warning(`Error while tokenizing file: ${fileName}, skipping. Error: ${e}`, Logger.GetCallerLocation())
             return Promise.resolve([])
         }
 
@@ -44,16 +54,16 @@ export default class Python extends ParserBase {
         try {
             tree = parser.file_input()
         } catch (e) {
-            Logger.Warning(`Error while walking file: ${filename}, skipping. Error: ${e}`, Logger.GetCallerLocation())
+            Logger.Warning(`Error while walking file: ${fileName}, skipping. Error: ${e}`, Logger.GetCallerLocation())
             return Promise.resolve([])
         }
 
-        const listener = new Python3Listener(rewriter, filename, this._minMethodSize, this._minFunctionChars)
+        const listener = new Python3Listener(rewriter, fileName, this._minMethodSize, this._minFunctionChars)
 
         ParseTreeWalker.DEFAULT.walk(listener, tree)
 
         const hashes = listener.GetData()
-        Logger.Debug(`Finished parsing file ${filename}. Number of functions found: ${hashes.length}`, Logger.GetCallerLocation())
+        Logger.Debug(`Finished parsing file ${fileName}. Number of functions found: ${hashes.length}`, Logger.GetCallerLocation())
         return Promise.resolve(hashes)
     }
 }

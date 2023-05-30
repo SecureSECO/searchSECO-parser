@@ -5,8 +5,9 @@ import { ParserBase } from "../ParserBase";
 import { execSync } from 'child_process'
 import { Node, TagData } from './Node'
 import StringStream from "./StringStream";
-import { AbstractionData, GetHashable } from "./AbstractionData";
+import { GetHashable } from "./AbstractionData";
 import Logger from "../searchSECO-logger/src/Logger";
+import path from 'path'
 
 
 export default class XMLParser extends ParserBase {
@@ -26,7 +27,7 @@ export default class XMLParser extends ParserBase {
 
 
     constructor(lang: Language, minFunctionChars: number = 0, minFunctionLines: number = 0) {
-        super(true)
+        super()
         this._language = lang
         this._minFunctionChars = minFunctionChars
         this._minFunctionLines = minFunctionLines
@@ -143,13 +144,12 @@ export default class XMLParser extends ParserBase {
         }
     }
 
-    protected async parseSingle(data: string, filepath: string): Promise<HashData[]> {
-        const filename = filepath.split(/\\|\//).pop()
-        this._currentFileName = filename
-        const xmlString = await this.parseToXML(filepath)
+    protected async parseSingle(basePath: string, fileName: string): Promise<HashData[]> {
+        this._currentFileName = fileName
+        const xmlString = await this.parseToXML(path.join(basePath, fileName))
         const hashes = this.parseXMLStream(new StringStream(xmlString))
         this.Reset()
-        Logger.Debug(`Finished parsing file ${filename}. Number of functions found: ${hashes.length}`, Logger.GetCallerLocation())
+        Logger.Debug(`Finished parsing file ${fileName}. Number of functions found: ${hashes.length}`, Logger.GetCallerLocation())
         return hashes
     }
 

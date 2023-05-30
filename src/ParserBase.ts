@@ -1,4 +1,5 @@
 import HashData from "./HashData"
+import path from 'path'
 
 /**
  * The interface each language parser must implement
@@ -6,10 +7,11 @@ import HashData from "./HashData"
 export interface IParser {
     /**
      * The files pending to be parsed.
-     * @param filename stores the name of the file
+     * @param fileName stores the name of the file
+     * @param basePath stores the base directory path
      * @param data stores the string data contained in the file
      */
-    readonly buffer: { filename: string, filepath: string, data: string }[]
+    readonly buffer: { fileName: string, basePath: string }[]
 
     /**
      * Parses the files stored in the buffer.
@@ -20,9 +22,10 @@ export interface IParser {
     /**
      * Adds a file to the buffer.
      * @param data The filedata to store
-     * @param filename The filename to store
+     * @param basePath The base path of the root directory
+     * @param fileName The fileName to store
      */
-    AddFile(filename: string, filepath: string, data: string): void
+    AddFile(fileName: string, basePath: string): void
 }
 
 /** 
@@ -30,30 +33,25 @@ export interface IParser {
  * Each language parser deriving from this base has to implement `parseSingle()` themselves.
  */
 export abstract class ParserBase implements IParser {
-    public readonly buffer: { filename: string, filepath: string, data: string}[] = []
-    private readonly _usePath: boolean
+    public readonly buffer: { fileName: string, basePath: string }[] = []
 
-    constructor(usePath: boolean) {
-        this._usePath = usePath
-    }
-
-    public AddFile(filename: string, filepath: string, data: string): void {
-        this.buffer.push({filename, filepath, data})
+    public AddFile(fileName: string, basePath: string): void {
+        this.buffer.push({fileName, basePath})
     }
 
     /**
      * Parses a single file.
-     * @param data The string data of the file
-     * @param filename The filename
+     * @param basePath The root directory
+     * @param fileName The filename
      * @returns a `HashData` array describing each method in the file.
      */
-    protected abstract parseSingle(data: string, filename: string): Promise<HashData[]>;
+    protected abstract parseSingle(basePath: string, fileName: string): Promise<HashData[]>;
 
     public async Parse(): Promise<HashData[]> {
         const result: HashData[] = []
         return Promise.resolve().then(async () => {
-            await Promise.all(this.buffer.map(async ({ filename, filepath, data }) => {
-                const singleResult = await this.parseSingle(data, this._usePath ? filepath : filename)
+            await Promise.all(this.buffer.map(async ({ fileName, basePath }) => {
+                const singleResult = await this.parseSingle(basePath, fileName)
                 result.push(...singleResult)
             }))
             this.clear()
