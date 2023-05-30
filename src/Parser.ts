@@ -5,6 +5,7 @@ import Python from "./languages/python3/PythonParser";
 import * as fs from 'fs'
 import path from 'path'
 import XMLParser from "./srcML/XmlParser";
+import Logger from "./searchSECO-logger/src/Logger";
 
 export enum XMLSupportedLanguage {
     CPP = "C++",
@@ -49,7 +50,7 @@ function getFileNameAndLanguage(filepath: string): {filename: string, lang: Lang
         case "py": return { filename, lang: Language.PYTHON } 
         case "js": return { filename, lang: Language.JS }
         case "cpp": return { filename, lang: Language.CPP }
-        case "csharp": return { filename, lang: Language.CSHARP }
+        case "cs": return { filename, lang: Language.CSHARP }
         case "java": return { filename, lang: Language.JAVA }
         default: return {filename: filename || '', lang: undefined}
     }
@@ -78,20 +79,30 @@ export default class Parser {
      * @returns A tuple containing the list of filenames parsed, and a Map. The keys of this map are the file names, 
      * and the values are HashData objects containing data about the parsed functions.
      */
-    public static async ParseFiles({path, files}: {path?: string, files?: string[]}): Promise<{filenames: string[], result: HashData[]}> {
+    public static async ParseFiles({path, files}: {path?: string, files?: string[]}, verbosity: number = 5): Promise<{filenames: string[], result: HashData[]}> {
+        Logger.SetModule("parser")
+        Logger.SetVerbosity(verbosity)
+
         files ??= getFiles(path)
         const filenames: string[] = []
         let result: HashData[] = []
         files.forEach(file => {
             const { filename, lang } = getFileNameAndLanguage(file)
-            if (!lang)
-                return
 
+            Logger.Debug(`Parsing ${filename}`, Logger.GetCallerLocation())
+
+            if (!lang) {
+                Logger.Debug(`Could not recognise language`, Logger.GetCallerLocation())
+                return
+            }
+            
             filenames.push(filename)
             const content = fs.readFileSync(file, 'utf-8')
             const parser = Parser.parsers.get(lang)
-            if (!parser)
+            if (!parser) {
+                Logger.Debug(`Could not associate a parser with specified language`, Logger.GetCallerLocation())
                 return
+            }
 
             parser.AddFile(filename, file, content)
         })

@@ -1,5 +1,6 @@
 import Parser from '../src/Parser'
 import HashData from '../src/HashData'
+import Logger, { Verbosity } from '../src/searchSECO-logger/src/Logger'
 
 
 describe('The parser', () => {
@@ -13,6 +14,9 @@ describe('The parser', () => {
     }
 
     beforeAll(async () => {
+
+        Logger.SetVerbosity(Verbosity.SILENT)
+
         results["js"] = (await Parser.ParseFiles({ files: [ 'tests/to_parse/a.js' ] })).result
         results["python"] = (await Parser.ParseFiles({ files: [ 'tests/to_parse/a.py' ] })).result
         results["cpp"] = (await Parser.ParseFiles({ files: [ 'tests/to_parse/a.cpp' ] })).result

@@ -6,6 +6,7 @@ import { execSync } from 'child_process'
 import { Node, TagData } from './Node'
 import StringStream from "./StringStream";
 import { AbstractionData, GetHashable } from "./AbstractionData";
+import Logger from "../searchSECO-logger/src/Logger";
 
 
 export default class XMLParser extends ParserBase {
@@ -21,6 +22,7 @@ export default class XMLParser extends ParserBase {
     private _startLastFunction: number = 0
     private _currentFileName: string = ''
     private _functionCount: number = 0
+    private _currentFile: number = 0
 
 
     constructor(lang: Language, minFunctionChars: number = 0, minFunctionLines: number = 0) {
@@ -43,6 +45,9 @@ export default class XMLParser extends ParserBase {
 
     private handleClosingTag(tagData: TagData) {
         if (tagData.tag.substring(1) !== this._current.GetTag()) {
+
+            Logger.Warning(`Closing tags don't line up in ${this._currentFileName} on line ${this._lineNumber}, skipping function`, Logger.GetCallerLocation())
+
             this._tree = new Node("unknown")
             this._current = this._tree
             this._inFunction = false
@@ -92,18 +97,19 @@ export default class XMLParser extends ParserBase {
 
     
     private handleUnitTag(tagData: TagData) {
-        // Do nothing for now
+        
     }
 
-    private parseXMLStream(input: string): HashData[] {
-		const stream = new StringStream(input)
-
+    private parseXMLStream(stream: StringStream): HashData[] {
         this._tree = new Node("unknown")
         const firstTag = this.getNextTag(stream)
-        if (stream.Empty() && firstTag.tag === "")
-            return
+        if (stream.Empty() && firstTag.tag === "") {
+            Logger.Debug("SrcML returned nothing.", Logger.GetCallerLocation())
+            return []
+        }
 		if (firstTag.tag !== "?xml") {
             this._tree = undefined
+            Logger.Debug(`Wrong first tag: tag was ${firstTag.tag}`, Logger.GetCallerLocation())
 			return []
         }
 		this._current = this._tree
@@ -141,9 +147,10 @@ export default class XMLParser extends ParserBase {
     protected async parseSingle(data: string, filename: string): Promise<HashData[]> {
         this._currentFileName = filename
         const xmlString = await this.parseToXML(filename)
-        const parsed = this.parseXMLStream(xmlString)
+        const hashes = this.parseXMLStream(new StringStream(xmlString))
         this.Reset()
-        return parsed
+        Logger.Debug(`Finished parsing file ${filename}. Number of functions found: ${hashes.length}`, Logger.GetCallerLocation())
+        return hashes
     }
 
     private Reset() {
