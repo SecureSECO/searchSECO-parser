@@ -94,7 +94,14 @@ export default class Parser {
             }
             
             filenames.push(filename)
-            const content = fs.readFileSync(file, 'utf-8')
+            let content = ''
+            try {
+                content = fs.readFileSync(file, 'utf-8')
+            } catch(e) {
+                Logger.Debug(`Cannot read file ${file}. Skipping`, Logger.GetCallerLocation())
+                return
+            }
+
             const parser = Parser.parsers.get(lang)
             if (!parser) {
                 Logger.Debug(`Could not associate a parser with specified language`, Logger.GetCallerLocation())
