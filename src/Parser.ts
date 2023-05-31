@@ -87,7 +87,6 @@ export default class Parser {
         const files = getAllFiles(basePath)
 
         const filenames: string[] = []
-        let result: HashData[] = []
         files.forEach(file => {
             const { filename, lang } = getFileNameAndLanguage(file, basePath)
 
@@ -109,10 +108,7 @@ export default class Parser {
 
         const parserPromises = Array.from(this.parsers.values()).map(p => p.Parse())
         const [...parserResults] = await Promise.all(parserPromises)
-        parserResults.forEach(content => {
-            result.push(...content)
-        })
     
-        return { filenames, result }
+        return { filenames, result: parserResults.flat() }
     }
 }

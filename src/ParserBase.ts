@@ -9,7 +9,6 @@ export interface IParser {
      * The files pending to be parsed.
      * @param fileName stores the name of the file
      * @param basePath stores the base directory path
-     * @param data stores the string data contained in the file
      */
     readonly buffer: { fileName: string, basePath: string }[]
 
@@ -21,9 +20,8 @@ export interface IParser {
 
     /**
      * Adds a file to the buffer.
-     * @param data The filedata to store
-     * @param basePath The base path of the root directory
      * @param fileName The fileName to store
+     * @param basePath The base path of the root directory
      */
     AddFile(fileName: string, basePath: string): void
 }
@@ -48,14 +46,13 @@ export abstract class ParserBase implements IParser {
     protected abstract parseSingle(basePath: string, fileName: string): Promise<HashData[]>;
 
     public async Parse(): Promise<HashData[]> {
-        const result: HashData[] = []
         return Promise.resolve().then(async () => {
-            await Promise.all(this.buffer.map(async ({ fileName, basePath }) => {
-                const singleResult = await this.parseSingle(basePath, fileName)
-                result.push(...singleResult)
-            }))
+
+            const promises = this.buffer.map(({ fileName, basePath }) => this.parseSingle(basePath, fileName))
+            const [...parsedFileHashes] = await Promise.all(promises)
+
             this.clear()
-            return result
+            return parsedFileHashes.flat()
         })
     }
 
