@@ -5,7 +5,7 @@ import path from 'path'
 describe('The parser', () => {
 
     let hashes: string[] = []
-    const expectedHashes =     [
+    const expectedHashes = [
         'bc3f118144695b94a2ebf4beadac560c',
         'b4e156d5abd7783bc3f69d868d49498f',
         '4e9ae211289aa2952bc0095b809e5811',
@@ -20,17 +20,17 @@ describe('The parser', () => {
         '74575f74059e69eda6903e280881dd0e',
         'ba6ede36f60c0dbeda878c7e859fa0b2',
         '45495c06036f13bd1bf7ce95a5fff54e',
+        '74575f74059e69eda6903e280881dd0e',
+        'ba6ede36f60c0dbeda878c7e859fa0b2',
+        '45495c06036f13bd1bf7ce95a5fff54e',
         '74575f74059e69eda6903e280881dd0e'
       ]
-
-
 
     beforeAll(async () => {
         Logger.SetVerbosity(Verbosity.SILENT)
 
         const basePath = path.join(__dirname, './to_parse')
         hashes = (await Parser.ParseFiles(basePath, Logger.GetVerbosity())).result.map(hash => hash.Hash)
-        console.log(hashes)
     })
 
     it("parses the correct number of files", () => {
