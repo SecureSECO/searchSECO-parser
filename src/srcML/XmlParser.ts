@@ -134,7 +134,7 @@ export default class XMLParser extends ParserBase {
     }
 
     private async parseToXML(path: string): Promise<string> {
-        const cmd = `srcml ${path} -l ${this._language}`
+        const cmd = `srcml '${path}' -l ${this._language}`
         try {
             const stdout = execSync(cmd)
             return stdout.toString()
