@@ -145,8 +145,8 @@ export default class XMLParser extends ParserBase {
     }
 
     protected async parseSingle(basePath: string, fileName: string): Promise<HashData[]> {
-        this._currentFileName = fileName
         const xmlString = await this.parseToXML(path.join(basePath, fileName))
+        this._currentFileName = fileName
         const hashes = this.parseXMLStream(new StringStream(xmlString))
         this.Reset()
         Logger.Debug(`Finished parsing file ${fileName}. Number of functions found: ${hashes.length}`, Logger.GetCallerLocation())
