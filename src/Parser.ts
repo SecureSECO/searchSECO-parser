@@ -32,8 +32,12 @@ export function getAllFiles(dir: string): string[] {
             if (/^.git/.test(file))
                 return
             const abs_path = path.join(currDir, file);
-            if (fs.statSync(abs_path).isDirectory()) return recursivelyGetFiles(abs_path, acc);
-            else acc.push(abs_path);
+            try {
+                if (fs.statSync(abs_path).isDirectory()) return recursivelyGetFiles(abs_path, acc);
+                else acc.push(abs_path);
+            } catch (e) {
+                return acc
+            }
         });
         return acc
     }
