@@ -44,7 +44,7 @@ export default class JSListener implements JavaScriptParserListener {
         this.starts.push(ctx.start.line)
 
         this.functionBodies.push("")
-        this.functionNames.push("<anonymous>")
+        this.functionNames.push("")
 
         this.inNonAbsoluteFunctionDef = false
     }
