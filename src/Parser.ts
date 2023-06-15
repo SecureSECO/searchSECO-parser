@@ -30,7 +30,7 @@ export function getAllFiles(dir: string): string[] {
     function recursivelyGetFiles(currDir: string, acc: string[]): string[] {
         try {
             fs.readdirSync(currDir).forEach((file: string) => {
-                if (/(^.git)|(\\tests?\\)|(\\dist\\)|(\\build\\)/.test(file.toLowerCase()))
+                if (/(^.git)|(\\tests?\\)|(\\dist\\)|(\\build\\)|(\\node_modules\\)/.test(file.toLowerCase()))
                     return acc
                 const abs_path = path.join(currDir, file);
                 try {
@@ -73,14 +73,6 @@ const MIN_METHOD_LINES = 0
  * This parser is a static class that holds references to the individual language parsers.
  */
 export default class Parser {
-    static parsers: Map<Language, IParser> = new Map<Language, IParser>([
-        [Language.JS, new Javascript(MIN_METHOD_LINES, MIN_FUNCTION_CHARS)],
-        [Language.PYTHON, new Python(MIN_METHOD_LINES, MIN_FUNCTION_CHARS)],
-        [Language.CPP, new XMLParser(Language.CPP, MIN_FUNCTION_CHARS, MIN_METHOD_LINES)],
-        [Language.CSHARP, new XMLParser(Language.CSHARP, MIN_FUNCTION_CHARS, MIN_METHOD_LINES)],
-        [Language.JAVA, new XMLParser(Language.JAVA, MIN_FUNCTION_CHARS, MIN_METHOD_LINES)]
-    ]);
-
     /** 
      * Parses a list of files or a whole directory based on a path. This method is static.
      * @param basePath The path of the directory to parse all files from
@@ -90,6 +82,14 @@ export default class Parser {
     public static async ParseFiles(basePath: string, verbosity: Verbosity = Verbosity.DEBUG): Promise<{filenames: string[], result: HashData[]}> {
         Logger.SetModule("parser")
         Logger.SetVerbosity(verbosity)
+
+        const parsers: Map<Language, IParser> = new Map<Language, IParser>([
+            [Language.JS, new Javascript(basePath, MIN_METHOD_LINES, MIN_FUNCTION_CHARS)],
+            [Language.PYTHON, new Python(basePath, MIN_METHOD_LINES, MIN_FUNCTION_CHARS)],
+            [Language.CPP, new XMLParser(basePath, Language.CPP, MIN_FUNCTION_CHARS, MIN_METHOD_LINES)],
+            [Language.CSHARP, new XMLParser(basePath, Language.CSHARP, MIN_FUNCTION_CHARS, MIN_METHOD_LINES)],
+            [Language.JAVA, new XMLParser(basePath, Language.JAVA, MIN_FUNCTION_CHARS, MIN_METHOD_LINES)]
+        ]);
 
         const files = getAllFiles(basePath)
 
@@ -102,7 +102,7 @@ export default class Parser {
             }
             
             filenames.push(filename)
-            const parser = Parser.parsers.get(lang)
+            const parser = parsers.get(lang)
             if (!parser) {
                 Logger.Debug(`Could not associate a parser with specified language`, Logger.GetCallerLocation())
                 return
@@ -113,7 +113,7 @@ export default class Parser {
         })
 
 
-        const parserPromises = Array.from(this.parsers.values()).map(p => p.Parse())
+        const parserPromises = Array.from(parsers.values()).map(p => p.Parse())
         const [...parserResults] = await Promise.all(parserPromises)
     
         return { filenames, result: parserResults.flat() }

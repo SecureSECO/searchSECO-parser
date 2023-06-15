@@ -12,22 +12,22 @@ import path from 'path'
 
 export default class XMLParser extends ParserBase {
     private readonly _language: Language
-    private _inFunction: boolean = false
-    private _parseFurther: boolean = true
+    private _inFunction = false
+    private _parseFurther = true
     private _hashes: HashData[] = []
     private _current: Node
     private _tree: Node
     private readonly _minFunctionChars: number
     private readonly _minFunctionLines: number
-    private _lineNumber: number = 0
-    private _startLastFunction: number = 0
-    private _currentFileName: string = ''
-    private _functionCount: number = 0
-    private _currentFile: number = 0
+    private _lineNumber = 0
+    private _startLastFunction = 0
+    private _currentFileName = ''
+    private _functionCount = 0
+    private _currentFile = 0
 
 
-    constructor(lang: Language, minFunctionChars: number = 0, minFunctionLines: number = 0) {
-        super()
+    constructor(basePath: string, lang: Language, minFunctionChars = 0, minFunctionLines = 0) {
+        super(basePath)
         this._language = lang
         this._minFunctionChars = minFunctionChars
         this._minFunctionLines = minFunctionLines
@@ -77,8 +77,9 @@ export default class XMLParser extends ParserBase {
 
     private handleOpeningTag(tagData: TagData) {
         if (tagData.tag !== "function" && !this._inFunction) {
-            if (tagData.tag === "unit")
-                this.handleUnitTag(tagData)
+            // Maybe require a unit tag handling, but for for now it's not needed
+            // if (tagData.tag === "unit")
+            //     this.handleUnitTag(tagData)
             return
         }
         else if (tagData.tag === "function") {
@@ -96,10 +97,10 @@ export default class XMLParser extends ParserBase {
         }
     }
 
-    
-    private handleUnitTag(tagData: TagData) {
+    // handleUnitTag implementation here
+    // private handleUnitTag(tagData: TagData) {
         
-    }
+    // }
 
     private parseXMLStream(stream: StringStream): HashData[] {
         this._tree = new Node("unknown")
@@ -125,7 +126,9 @@ export default class XMLParser extends ParserBase {
                 this.handleClosingTag(tagData)
 
 			else if (tagData.tag.substring(0,7) === "comment")
-				while (this.getNextTag(stream).tag !== "/comment") {}
+				while (this.getNextTag(stream).tag !== "/comment") { 
+                    /* consume chars until a closing comment tag has been found */ 
+                }
 			else {
                 this.handleOpeningTag(tagData)
 			}

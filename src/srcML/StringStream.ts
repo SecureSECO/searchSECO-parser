@@ -2,10 +2,10 @@
 
 export default class StringStream {
     private _buffer: string
-    private _lineNumber: number = 0
-    private _readHead: number = 0
+    private _lineNumber = 0
+    private _readHead = 0
 
-    constructor(initialBuffer: string = '') {
+    constructor(initialBuffer = '') {
         this._buffer = initialBuffer
     }
 

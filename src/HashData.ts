@@ -8,7 +8,7 @@ export default class HashData {
     public FunctionName: string
     public LineNumber: number
     public LineNumberEnd: number
-    public VulnCode: string = ''
+    public VulnCode = ''
 
     constructor(hash?: string, filename?: string, functionName?: string, lineNumber?: number, lineNumberEnd?: number) {
         this.Hash = hash || ''

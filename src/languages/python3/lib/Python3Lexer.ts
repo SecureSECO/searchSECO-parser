@@ -11,8 +11,6 @@ import { ATNDeserializer } from "antlr4ts/atn/ATNDeserializer";
 import { CharStream } from "antlr4ts/CharStream";
 import { Lexer } from "antlr4ts/Lexer";
 import { LexerATNSimulator } from "antlr4ts/atn/LexerATNSimulator";
-import { NotNull } from "antlr4ts/Decorators";
-import { Override } from "antlr4ts/Decorators";
 import { RuleContext } from "antlr4ts/RuleContext";
 import { Vocabulary } from "antlr4ts/Vocabulary";
 import { VocabularyImpl } from "antlr4ts/VocabularyImpl";
@@ -194,7 +192,7 @@ export class Python3Lexer extends Lexer {
 
 	  private token_queue: Token[] = [];
 	  private indents: number[] = [];
-	  private opened: number = 0;
+	  private opened = 0;
 	  private last_token: Token|undefined = undefined;
 
 	  // @Override
@@ -209,7 +207,7 @@ export class Python3Lexer extends Lexer {
 	    this.opened = 0;
 
 	    super.reset();
-	  };
+	  }
 
 	  // @Override
 	  public emit(token?: Token): Token {
@@ -220,7 +218,7 @@ export class Python3Lexer extends Lexer {
 	    }
 	    this.token_queue.push(token);
 	    return token;
-	  };
+	  }
 
 	  /**
 	   * Return the next token from the character stream and records this last
@@ -252,7 +250,7 @@ export class Python3Lexer extends Lexer {
 	      this.emit(this.commonToken(Python3Parser.EOF, "<EOF>"));
 	    }
 
-	    let next = super.nextToken();
+	    const next = super.nextToken();
 
 	    if (next.channel == Token.DEFAULT_CHANNEL) {
 	      // Keep track of the last token on the default channel.
@@ -263,7 +261,7 @@ export class Python3Lexer extends Lexer {
 	  }
 
 	  private createDedent(): Token {
-	    let dedent = this.commonToken(Python3Parser.DEDENT, "dedent"); // Custom
+	    const dedent = this.commonToken(Python3Parser.DEDENT, "dedent"); // Custom
 	    if (this.last_token) {
 	      dedent.line = this.last_token.line;
 	    }
@@ -271,8 +269,8 @@ export class Python3Lexer extends Lexer {
 	  }
 
 	  private commonToken(type: number, text: string): CommonToken {
-	    let stop: number = this.charIndex - 1;
-	    let start: number = text.length ? stop - text.length + 1 : stop;
+	    const stop: number = this.charIndex - 1;
+	    const start: number = text.length ? stop - text.length + 1 : stop;
 	    return new CommonToken(type, text, this._tokenFactorySourcePair, Lexer.DEFAULT_TOKEN_CHANNEL, start, stop);
 	  }
 
@@ -357,13 +355,13 @@ export class Python3Lexer extends Lexer {
 		switch (actionIndex) {
 		case 0:
 
-			     let newLine = this.text.replace(/[^\r\n]+/g, '');
-			     let spaces = this.text.replace(/[\r\n]+/g, '');
+			     const newLine = this.text.replace(/[^\r\n]+/g, '');
+			     const spaces = this.text.replace(/[\r\n]+/g, '');
 
 			     // Strip newlines inside open clauses except if we are near EOF. We keep NEWLINEs near EOF to
 			     // satisfy the final newline needed by the single_put rule used by the REPL.
-			     let next = this.inputStream.LA(1);
-			     let nextnext = this.inputStream.LA(2);
+			     const next = this.inputStream.LA(1);
+			     const nextnext = this.inputStream.LA(2);
 			     if (this.opened > 0 || (nextnext != -1 /* EOF */ && (next === 13 /* '\r' */ || next === 10 /* '\n' */ || next === 35 /* '#' */))) {
 			       // If we're inside a list or on a blank line, ignore all indents,
 			       // dedents and line breaks.
@@ -371,8 +369,8 @@ export class Python3Lexer extends Lexer {
 			     } else {
 			       this.emit(this.commonToken(Python3Parser.NEWLINE, newLine));
 
-			       let indent = this.getIndentationCount(spaces);
-			       let previous = this.indents.length ? this.indents[this.indents.length - 1] : 0;
+			       const indent = this.getIndentationCount(spaces);
+			       const previous = this.indents.length ? this.indents[this.indents.length - 1] : 0;
 
 			       if (indent === previous) {
 			         // skip indents of the same size as the present indent-size

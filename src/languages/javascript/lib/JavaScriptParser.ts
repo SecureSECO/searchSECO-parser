@@ -321,7 +321,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public program(): ProgramContext {
-		let _localctx: ProgramContext = new ProgramContext(this._ctx, this.state);
+		const _localctx: ProgramContext = new ProgramContext(this._ctx, this.state);
 		this.enterRule(_localctx, 0, JavaScriptParser.RULE_program);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -366,7 +366,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public sourceElement(): SourceElementContext {
-		let _localctx: SourceElementContext = new SourceElementContext(this._ctx, this.state);
+		const _localctx: SourceElementContext = new SourceElementContext(this._ctx, this.state);
 		this.enterRule(_localctx, 2, JavaScriptParser.RULE_sourceElement);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -391,7 +391,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public statement(): StatementContext {
-		let _localctx: StatementContext = new StatementContext(this._ctx, this.state);
+		const _localctx: StatementContext = new StatementContext(this._ctx, this.state);
 		this.enterRule(_localctx, 4, JavaScriptParser.RULE_statement);
 		try {
 			this.state = 182;
@@ -574,7 +574,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public block(): BlockContext {
-		let _localctx: BlockContext = new BlockContext(this._ctx, this.state);
+		const _localctx: BlockContext = new BlockContext(this._ctx, this.state);
 		this.enterRule(_localctx, 6, JavaScriptParser.RULE_block);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -611,7 +611,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public statementList(): StatementListContext {
-		let _localctx: StatementListContext = new StatementListContext(this._ctx, this.state);
+		const _localctx: StatementListContext = new StatementListContext(this._ctx, this.state);
 		this.enterRule(_localctx, 8, JavaScriptParser.RULE_statementList);
 		try {
 			let _alt: number;
@@ -655,7 +655,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public importStatement(): ImportStatementContext {
-		let _localctx: ImportStatementContext = new ImportStatementContext(this._ctx, this.state);
+		const _localctx: ImportStatementContext = new ImportStatementContext(this._ctx, this.state);
 		this.enterRule(_localctx, 10, JavaScriptParser.RULE_importStatement);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -682,7 +682,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public importFromBlock(): ImportFromBlockContext {
-		let _localctx: ImportFromBlockContext = new ImportFromBlockContext(this._ctx, this.state);
+		const _localctx: ImportFromBlockContext = new ImportFromBlockContext(this._ctx, this.state);
 		this.enterRule(_localctx, 12, JavaScriptParser.RULE_importFromBlock);
 		try {
 			this.state = 210;
@@ -855,7 +855,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public moduleItems(): ModuleItemsContext {
-		let _localctx: ModuleItemsContext = new ModuleItemsContext(this._ctx, this.state);
+		const _localctx: ModuleItemsContext = new ModuleItemsContext(this._ctx, this.state);
 		this.enterRule(_localctx, 14, JavaScriptParser.RULE_moduleItems);
 		let _la: number;
 		try {
@@ -922,7 +922,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public importDefault(): ImportDefaultContext {
-		let _localctx: ImportDefaultContext = new ImportDefaultContext(this._ctx, this.state);
+		const _localctx: ImportDefaultContext = new ImportDefaultContext(this._ctx, this.state);
 		this.enterRule(_localctx, 16, JavaScriptParser.RULE_importDefault);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -949,7 +949,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public importNamespace(): ImportNamespaceContext {
-		let _localctx: ImportNamespaceContext = new ImportNamespaceContext(this._ctx, this.state);
+		const _localctx: ImportNamespaceContext = new ImportNamespaceContext(this._ctx, this.state);
 		this.enterRule(_localctx, 18, JavaScriptParser.RULE_importNamespace);
 		let _la: number;
 		try {
@@ -1052,7 +1052,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public importFrom(): ImportFromContext {
-		let _localctx: ImportFromContext = new ImportFromContext(this._ctx, this.state);
+		const _localctx: ImportFromContext = new ImportFromContext(this._ctx, this.state);
 		this.enterRule(_localctx, 20, JavaScriptParser.RULE_importFrom);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -1079,7 +1079,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public aliasName(): AliasNameContext {
-		let _localctx: AliasNameContext = new AliasNameContext(this._ctx, this.state);
+		const _localctx: AliasNameContext = new AliasNameContext(this._ctx, this.state);
 		this.enterRule(_localctx, 22, JavaScriptParser.RULE_aliasName);
 		let _la: number;
 		try {
@@ -1183,7 +1183,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public exportFromBlock(): ExportFromBlockContext {
-		let _localctx: ExportFromBlockContext = new ExportFromBlockContext(this._ctx, this.state);
+		const _localctx: ExportFromBlockContext = new ExportFromBlockContext(this._ctx, this.state);
 		this.enterRule(_localctx, 26, JavaScriptParser.RULE_exportFromBlock);
 		try {
 			this.state = 272;
@@ -1289,7 +1289,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public declaration(): DeclarationContext {
-		let _localctx: DeclarationContext = new DeclarationContext(this._ctx, this.state);
+		const _localctx: DeclarationContext = new DeclarationContext(this._ctx, this.state);
 		this.enterRule(_localctx, 28, JavaScriptParser.RULE_declaration);
 		try {
 			this.state = 277;
@@ -1340,7 +1340,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public variableStatement(): VariableStatementContext {
-		let _localctx: VariableStatementContext = new VariableStatementContext(this._ctx, this.state);
+		const _localctx: VariableStatementContext = new VariableStatementContext(this._ctx, this.state);
 		this.enterRule(_localctx, 30, JavaScriptParser.RULE_variableStatement);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -1367,7 +1367,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public variableDeclarationList(): VariableDeclarationListContext {
-		let _localctx: VariableDeclarationListContext = new VariableDeclarationListContext(this._ctx, this.state);
+		const _localctx: VariableDeclarationListContext = new VariableDeclarationListContext(this._ctx, this.state);
 		this.enterRule(_localctx, 32, JavaScriptParser.RULE_variableDeclarationList);
 		try {
 			let _alt: number;
@@ -1413,7 +1413,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public variableDeclaration(): VariableDeclarationContext {
-		let _localctx: VariableDeclarationContext = new VariableDeclarationContext(this._ctx, this.state);
+		const _localctx: VariableDeclarationContext = new VariableDeclarationContext(this._ctx, this.state);
 		this.enterRule(_localctx, 34, JavaScriptParser.RULE_variableDeclaration);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -1450,7 +1450,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public emptyStatement(): EmptyStatementContext {
-		let _localctx: EmptyStatementContext = new EmptyStatementContext(this._ctx, this.state);
+		const _localctx: EmptyStatementContext = new EmptyStatementContext(this._ctx, this.state);
 		this.enterRule(_localctx, 36, JavaScriptParser.RULE_emptyStatement);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -1475,7 +1475,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public expressionStatement(): ExpressionStatementContext {
-		let _localctx: ExpressionStatementContext = new ExpressionStatementContext(this._ctx, this.state);
+		const _localctx: ExpressionStatementContext = new ExpressionStatementContext(this._ctx, this.state);
 		this.enterRule(_localctx, 38, JavaScriptParser.RULE_expressionStatement);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -1506,7 +1506,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public ifStatement(): IfStatementContext {
-		let _localctx: IfStatementContext = new IfStatementContext(this._ctx, this.state);
+		const _localctx: IfStatementContext = new IfStatementContext(this._ctx, this.state);
 		this.enterRule(_localctx, 40, JavaScriptParser.RULE_ifStatement);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -1755,7 +1755,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public varModifier(): VarModifierContext {
-		let _localctx: VarModifierContext = new VarModifierContext(this._ctx, this.state);
+		const _localctx: VarModifierContext = new VarModifierContext(this._ctx, this.state);
 		this.enterRule(_localctx, 44, JavaScriptParser.RULE_varModifier);
 		try {
 			this.state = 372;
@@ -1803,7 +1803,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public continueStatement(): ContinueStatementContext {
-		let _localctx: ContinueStatementContext = new ContinueStatementContext(this._ctx, this.state);
+		const _localctx: ContinueStatementContext = new ContinueStatementContext(this._ctx, this.state);
 		this.enterRule(_localctx, 46, JavaScriptParser.RULE_continueStatement);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -1844,7 +1844,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public breakStatement(): BreakStatementContext {
-		let _localctx: BreakStatementContext = new BreakStatementContext(this._ctx, this.state);
+		const _localctx: BreakStatementContext = new BreakStatementContext(this._ctx, this.state);
 		this.enterRule(_localctx, 48, JavaScriptParser.RULE_breakStatement);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -1885,7 +1885,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public returnStatement(): ReturnStatementContext {
-		let _localctx: ReturnStatementContext = new ReturnStatementContext(this._ctx, this.state);
+		const _localctx: ReturnStatementContext = new ReturnStatementContext(this._ctx, this.state);
 		this.enterRule(_localctx, 50, JavaScriptParser.RULE_returnStatement);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -1926,7 +1926,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public yieldStatement(): YieldStatementContext {
-		let _localctx: YieldStatementContext = new YieldStatementContext(this._ctx, this.state);
+		const _localctx: YieldStatementContext = new YieldStatementContext(this._ctx, this.state);
 		this.enterRule(_localctx, 52, JavaScriptParser.RULE_yieldStatement);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -1967,7 +1967,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public withStatement(): WithStatementContext {
-		let _localctx: WithStatementContext = new WithStatementContext(this._ctx, this.state);
+		const _localctx: WithStatementContext = new WithStatementContext(this._ctx, this.state);
 		this.enterRule(_localctx, 54, JavaScriptParser.RULE_withStatement);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -2000,7 +2000,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public switchStatement(): SwitchStatementContext {
-		let _localctx: SwitchStatementContext = new SwitchStatementContext(this._ctx, this.state);
+		const _localctx: SwitchStatementContext = new SwitchStatementContext(this._ctx, this.state);
 		this.enterRule(_localctx, 56, JavaScriptParser.RULE_switchStatement);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -2033,7 +2033,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public caseBlock(): CaseBlockContext {
-		let _localctx: CaseBlockContext = new CaseBlockContext(this._ctx, this.state);
+		const _localctx: CaseBlockContext = new CaseBlockContext(this._ctx, this.state);
 		this.enterRule(_localctx, 58, JavaScriptParser.RULE_caseBlock);
 		let _la: number;
 		try {
@@ -2091,7 +2091,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public caseClauses(): CaseClausesContext {
-		let _localctx: CaseClausesContext = new CaseClausesContext(this._ctx, this.state);
+		const _localctx: CaseClausesContext = new CaseClausesContext(this._ctx, this.state);
 		this.enterRule(_localctx, 60, JavaScriptParser.RULE_caseClauses);
 		let _la: number;
 		try {
@@ -2129,7 +2129,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public caseClause(): CaseClauseContext {
-		let _localctx: CaseClauseContext = new CaseClauseContext(this._ctx, this.state);
+		const _localctx: CaseClauseContext = new CaseClauseContext(this._ctx, this.state);
 		this.enterRule(_localctx, 62, JavaScriptParser.RULE_caseClause);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -2168,7 +2168,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public defaultClause(): DefaultClauseContext {
-		let _localctx: DefaultClauseContext = new DefaultClauseContext(this._ctx, this.state);
+		const _localctx: DefaultClauseContext = new DefaultClauseContext(this._ctx, this.state);
 		this.enterRule(_localctx, 64, JavaScriptParser.RULE_defaultClause);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -2205,7 +2205,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public labelledStatement(): LabelledStatementContext {
-		let _localctx: LabelledStatementContext = new LabelledStatementContext(this._ctx, this.state);
+		const _localctx: LabelledStatementContext = new LabelledStatementContext(this._ctx, this.state);
 		this.enterRule(_localctx, 66, JavaScriptParser.RULE_labelledStatement);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -2234,7 +2234,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public throwStatement(): ThrowStatementContext {
-		let _localctx: ThrowStatementContext = new ThrowStatementContext(this._ctx, this.state);
+		const _localctx: ThrowStatementContext = new ThrowStatementContext(this._ctx, this.state);
 		this.enterRule(_localctx, 68, JavaScriptParser.RULE_throwStatement);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -2267,7 +2267,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public tryStatement(): TryStatementContext {
-		let _localctx: TryStatementContext = new TryStatementContext(this._ctx, this.state);
+		const _localctx: TryStatementContext = new TryStatementContext(this._ctx, this.state);
 		this.enterRule(_localctx, 70, JavaScriptParser.RULE_tryStatement);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -2322,7 +2322,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public catchProduction(): CatchProductionContext {
-		let _localctx: CatchProductionContext = new CatchProductionContext(this._ctx, this.state);
+		const _localctx: CatchProductionContext = new CatchProductionContext(this._ctx, this.state);
 		this.enterRule(_localctx, 72, JavaScriptParser.RULE_catchProduction);
 		let _la: number;
 		try {
@@ -2372,7 +2372,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public finallyProduction(): FinallyProductionContext {
-		let _localctx: FinallyProductionContext = new FinallyProductionContext(this._ctx, this.state);
+		const _localctx: FinallyProductionContext = new FinallyProductionContext(this._ctx, this.state);
 		this.enterRule(_localctx, 74, JavaScriptParser.RULE_finallyProduction);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -2399,7 +2399,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public debuggerStatement(): DebuggerStatementContext {
-		let _localctx: DebuggerStatementContext = new DebuggerStatementContext(this._ctx, this.state);
+		const _localctx: DebuggerStatementContext = new DebuggerStatementContext(this._ctx, this.state);
 		this.enterRule(_localctx, 76, JavaScriptParser.RULE_debuggerStatement);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -2426,7 +2426,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public functionDeclaration(): FunctionDeclarationContext {
-		let _localctx: FunctionDeclarationContext = new FunctionDeclarationContext(this._ctx, this.state);
+		const _localctx: FunctionDeclarationContext = new FunctionDeclarationContext(this._ctx, this.state);
 		this.enterRule(_localctx, 78, JavaScriptParser.RULE_functionDeclaration);
 		let _la: number;
 		try {
@@ -2490,7 +2490,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public classDeclaration(): ClassDeclarationContext {
-		let _localctx: ClassDeclarationContext = new ClassDeclarationContext(this._ctx, this.state);
+		const _localctx: ClassDeclarationContext = new ClassDeclarationContext(this._ctx, this.state);
 		this.enterRule(_localctx, 80, JavaScriptParser.RULE_classDeclaration);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -2519,7 +2519,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public classTail(): ClassTailContext {
-		let _localctx: ClassTailContext = new ClassTailContext(this._ctx, this.state);
+		const _localctx: ClassTailContext = new ClassTailContext(this._ctx, this.state);
 		this.enterRule(_localctx, 82, JavaScriptParser.RULE_classTail);
 		let _la: number;
 		try {
@@ -2576,7 +2576,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public classElement(): ClassElementContext {
-		let _localctx: ClassElementContext = new ClassElementContext(this._ctx, this.state);
+		const _localctx: ClassElementContext = new ClassElementContext(this._ctx, this.state);
 		this.enterRule(_localctx, 84, JavaScriptParser.RULE_classElement);
 		let _la: number;
 		try {
@@ -2700,7 +2700,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public methodDefinition(): MethodDefinitionContext {
-		let _localctx: MethodDefinitionContext = new MethodDefinitionContext(this._ctx, this.state);
+		const _localctx: MethodDefinitionContext = new MethodDefinitionContext(this._ctx, this.state);
 		this.enterRule(_localctx, 86, JavaScriptParser.RULE_methodDefinition);
 		let _la: number;
 		try {
@@ -2846,7 +2846,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public formalParameterList(): FormalParameterListContext {
-		let _localctx: FormalParameterListContext = new FormalParameterListContext(this._ctx, this.state);
+		const _localctx: FormalParameterListContext = new FormalParameterListContext(this._ctx, this.state);
 		this.enterRule(_localctx, 88, JavaScriptParser.RULE_formalParameterList);
 		let _la: number;
 		try {
@@ -2922,7 +2922,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public formalParameterArg(): FormalParameterArgContext {
-		let _localctx: FormalParameterArgContext = new FormalParameterArgContext(this._ctx, this.state);
+		const _localctx: FormalParameterArgContext = new FormalParameterArgContext(this._ctx, this.state);
 		this.enterRule(_localctx, 90, JavaScriptParser.RULE_formalParameterArg);
 		let _la: number;
 		try {
@@ -2960,7 +2960,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public lastFormalParameterArg(): LastFormalParameterArgContext {
-		let _localctx: LastFormalParameterArgContext = new LastFormalParameterArgContext(this._ctx, this.state);
+		const _localctx: LastFormalParameterArgContext = new LastFormalParameterArgContext(this._ctx, this.state);
 		this.enterRule(_localctx, 92, JavaScriptParser.RULE_lastFormalParameterArg);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -2987,7 +2987,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public functionBody(): FunctionBodyContext {
-		let _localctx: FunctionBodyContext = new FunctionBodyContext(this._ctx, this.state);
+		const _localctx: FunctionBodyContext = new FunctionBodyContext(this._ctx, this.state);
 		this.enterRule(_localctx, 94, JavaScriptParser.RULE_functionBody);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -3024,7 +3024,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public parseFunctionBody(): ParseFunctionBodyContext {
-		let _localctx: ParseFunctionBodyContext = new ParseFunctionBodyContext(this._ctx, this.state);
+		const _localctx: ParseFunctionBodyContext = new ParseFunctionBodyContext(this._ctx, this.state);
 		this.enterRule(_localctx, 96, JavaScriptParser.RULE_parseFunctionBody);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -3049,7 +3049,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public sourceElements(): SourceElementsContext {
-		let _localctx: SourceElementsContext = new SourceElementsContext(this._ctx, this.state);
+		const _localctx: SourceElementsContext = new SourceElementsContext(this._ctx, this.state);
 		this.enterRule(_localctx, 98, JavaScriptParser.RULE_sourceElements);
 		try {
 			let _alt: number;
@@ -3093,7 +3093,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public arrayLiteral(): ArrayLiteralContext {
-		let _localctx: ArrayLiteralContext = new ArrayLiteralContext(this._ctx, this.state);
+		const _localctx: ArrayLiteralContext = new ArrayLiteralContext(this._ctx, this.state);
 		this.enterRule(_localctx, 100, JavaScriptParser.RULE_arrayLiteral);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -3124,7 +3124,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public elementList(): ElementListContext {
-		let _localctx: ElementListContext = new ElementListContext(this._ctx, this.state);
+		const _localctx: ElementListContext = new ElementListContext(this._ctx, this.state);
 		this.enterRule(_localctx, 102, JavaScriptParser.RULE_elementList);
 		let _la: number;
 		try {
@@ -3219,7 +3219,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public arrayElement(): ArrayElementContext {
-		let _localctx: ArrayElementContext = new ArrayElementContext(this._ctx, this.state);
+		const _localctx: ArrayElementContext = new ArrayElementContext(this._ctx, this.state);
 		this.enterRule(_localctx, 104, JavaScriptParser.RULE_arrayElement);
 		let _la: number;
 		try {
@@ -3405,7 +3405,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public propertyName(): PropertyNameContext {
-		let _localctx: PropertyNameContext = new PropertyNameContext(this._ctx, this.state);
+		const _localctx: PropertyNameContext = new PropertyNameContext(this._ctx, this.state);
 		this.enterRule(_localctx, 108, JavaScriptParser.RULE_propertyName);
 		try {
 			this.state = 695;
@@ -3516,7 +3516,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public arguments(): ArgumentsContext {
-		let _localctx: ArgumentsContext = new ArgumentsContext(this._ctx, this.state);
+		const _localctx: ArgumentsContext = new ArgumentsContext(this._ctx, this.state);
 		this.enterRule(_localctx, 110, JavaScriptParser.RULE_arguments);
 		let _la: number;
 		try {
@@ -3583,7 +3583,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public argument(): ArgumentContext {
-		let _localctx: ArgumentContext = new ArgumentContext(this._ctx, this.state);
+		const _localctx: ArgumentContext = new ArgumentContext(this._ctx, this.state);
 		this.enterRule(_localctx, 112, JavaScriptParser.RULE_argument);
 		let _la: number;
 		try {
@@ -3634,7 +3634,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public expressionSequence(): ExpressionSequenceContext {
-		let _localctx: ExpressionSequenceContext = new ExpressionSequenceContext(this._ctx, this.state);
+		const _localctx: ExpressionSequenceContext = new ExpressionSequenceContext(this._ctx, this.state);
 		this.enterRule(_localctx, 114, JavaScriptParser.RULE_expressionSequence);
 		try {
 			let _alt: number;
@@ -3685,11 +3685,11 @@ export class JavaScriptParser extends JavaScriptParserBase {
 			_p = 0;
 		}
 
-		let _parentctx: ParserRuleContext = this._ctx;
-		let _parentState: number = this.state;
+		const _parentctx: ParserRuleContext = this._ctx;
+		const _parentState: number = this.state;
 		let _localctx: SingleExpressionContext = new SingleExpressionContext(this._ctx, _parentState);
 		let _prevctx: SingleExpressionContext = _localctx;
-		let _startState: number = 116;
+		const _startState = 116;
 		this.enterRecursionRule(_localctx, 116, JavaScriptParser.RULE_singleExpression, _p);
 		let _la: number;
 		try {
@@ -4447,7 +4447,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public assignable(): AssignableContext {
-		let _localctx: AssignableContext = new AssignableContext(this._ctx, this.state);
+		const _localctx: AssignableContext = new AssignableContext(this._ctx, this.state);
 		this.enterRule(_localctx, 118, JavaScriptParser.RULE_assignable);
 		try {
 			this.state = 868;
@@ -4496,7 +4496,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public objectLiteral(): ObjectLiteralContext {
-		let _localctx: ObjectLiteralContext = new ObjectLiteralContext(this._ctx, this.state);
+		const _localctx: ObjectLiteralContext = new ObjectLiteralContext(this._ctx, this.state);
 		this.enterRule(_localctx, 120, JavaScriptParser.RULE_objectLiteral);
 		let _la: number;
 		try {
@@ -4664,7 +4664,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public arrowFunctionParameters(): ArrowFunctionParametersContext {
-		let _localctx: ArrowFunctionParametersContext = new ArrowFunctionParametersContext(this._ctx, this.state);
+		const _localctx: ArrowFunctionParametersContext = new ArrowFunctionParametersContext(this._ctx, this.state);
 		this.enterRule(_localctx, 124, JavaScriptParser.RULE_arrowFunctionParameters);
 		let _la: number;
 		try {
@@ -4719,7 +4719,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public arrowFunctionBody(): ArrowFunctionBodyContext {
-		let _localctx: ArrowFunctionBodyContext = new ArrowFunctionBodyContext(this._ctx, this.state);
+		const _localctx: ArrowFunctionBodyContext = new ArrowFunctionBodyContext(this._ctx, this.state);
 		this.enterRule(_localctx, 126, JavaScriptParser.RULE_arrowFunctionBody);
 		try {
 			this.state = 919;
@@ -4758,7 +4758,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public assignmentOperator(): AssignmentOperatorContext {
-		let _localctx: AssignmentOperatorContext = new AssignmentOperatorContext(this._ctx, this.state);
+		const _localctx: AssignmentOperatorContext = new AssignmentOperatorContext(this._ctx, this.state);
 		this.enterRule(_localctx, 128, JavaScriptParser.RULE_assignmentOperator);
 		let _la: number;
 		try {
@@ -4794,7 +4794,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public literal(): LiteralContext {
-		let _localctx: LiteralContext = new LiteralContext(this._ctx, this.state);
+		const _localctx: LiteralContext = new LiteralContext(this._ctx, this.state);
 		this.enterRule(_localctx, 130, JavaScriptParser.RULE_literal);
 		try {
 			this.state = 930;
@@ -4876,7 +4876,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public numericLiteral(): NumericLiteralContext {
-		let _localctx: NumericLiteralContext = new NumericLiteralContext(this._ctx, this.state);
+		const _localctx: NumericLiteralContext = new NumericLiteralContext(this._ctx, this.state);
 		this.enterRule(_localctx, 132, JavaScriptParser.RULE_numericLiteral);
 		let _la: number;
 		try {
@@ -4912,7 +4912,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public bigintLiteral(): BigintLiteralContext {
-		let _localctx: BigintLiteralContext = new BigintLiteralContext(this._ctx, this.state);
+		const _localctx: BigintLiteralContext = new BigintLiteralContext(this._ctx, this.state);
 		this.enterRule(_localctx, 134, JavaScriptParser.RULE_bigintLiteral);
 		let _la: number;
 		try {
@@ -4948,7 +4948,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public getter(): GetterContext {
-		let _localctx: GetterContext = new GetterContext(this._ctx, this.state);
+		const _localctx: GetterContext = new GetterContext(this._ctx, this.state);
 		this.enterRule(_localctx, 136, JavaScriptParser.RULE_getter);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -4979,7 +4979,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public setter(): SetterContext {
-		let _localctx: SetterContext = new SetterContext(this._ctx, this.state);
+		const _localctx: SetterContext = new SetterContext(this._ctx, this.state);
 		this.enterRule(_localctx, 138, JavaScriptParser.RULE_setter);
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -5010,7 +5010,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public identifierName(): IdentifierNameContext {
-		let _localctx: IdentifierNameContext = new IdentifierNameContext(this._ctx, this.state);
+		const _localctx: IdentifierNameContext = new IdentifierNameContext(this._ctx, this.state);
 		this.enterRule(_localctx, 140, JavaScriptParser.RULE_identifierName);
 		try {
 			this.state = 946;
@@ -5049,7 +5049,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public identifier(): IdentifierContext {
-		let _localctx: IdentifierContext = new IdentifierContext(this._ctx, this.state);
+		const _localctx: IdentifierContext = new IdentifierContext(this._ctx, this.state);
 		this.enterRule(_localctx, 142, JavaScriptParser.RULE_identifier);
 		let _la: number;
 		try {
@@ -5085,7 +5085,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public reservedWord(): ReservedWordContext {
-		let _localctx: ReservedWordContext = new ReservedWordContext(this._ctx, this.state);
+		const _localctx: ReservedWordContext = new ReservedWordContext(this._ctx, this.state);
 		this.enterRule(_localctx, 144, JavaScriptParser.RULE_reservedWord);
 		try {
 			this.state = 953;
@@ -5178,7 +5178,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public keyword(): KeywordContext {
-		let _localctx: KeywordContext = new KeywordContext(this._ctx, this.state);
+		const _localctx: KeywordContext = new KeywordContext(this._ctx, this.state);
 		this.enterRule(_localctx, 146, JavaScriptParser.RULE_keyword);
 		try {
 			this.state = 1001;
@@ -5527,7 +5527,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public let_(): Let_Context {
-		let _localctx: Let_Context = new Let_Context(this._ctx, this.state);
+		const _localctx: Let_Context = new Let_Context(this._ctx, this.state);
 		this.enterRule(_localctx, 148, JavaScriptParser.RULE_let_);
 		let _la: number;
 		try {
@@ -5563,7 +5563,7 @@ export class JavaScriptParser extends JavaScriptParserBase {
 	}
 	// @RuleVersion(0)
 	public eos(): EosContext {
-		let _localctx: EosContext = new EosContext(this._ctx, this.state);
+		const _localctx: EosContext = new EosContext(this._ctx, this.state);
 		this.enterRule(_localctx, 150, JavaScriptParser.RULE_eos);
 		try {
 			this.state = 1009;

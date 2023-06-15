@@ -1,5 +1,3 @@
-import StringStream from "./StringStream";
-
 
 export enum Tag {
     "name",
@@ -175,7 +173,7 @@ export class TagData {
 export class Node {
     private _children: Node[] = []
     private _previous: Node | undefined = undefined
-    private _content: string = ''
+    private _content = ''
     private _tag: string
 
     constructor(tag: string, content?: string, previous?: Node) {

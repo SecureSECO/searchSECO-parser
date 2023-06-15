@@ -2,7 +2,7 @@ import { Lexer, Token, CharStream } from 'antlr4ts';
 import { JavaScriptLexer } from '../../lib/JavaScriptLexer';
 
 export default abstract class JavaScriptLexerBase extends Lexer {
-    private scopeStrictModes = new Array();
+    private scopeStrictModes: boolean[] = [];
     private lastToken: Token | null = null;
     private useStrictDefault = false;
     private useStrictCurrent = false;
@@ -39,7 +39,7 @@ export default abstract class JavaScriptLexerBase extends Lexer {
     }
 
     nextToken() {
-        var next = super.nextToken();
+        const next = super.nextToken();
 
         if (next.channel === Token.DEFAULT_CHANNEL) {
             this.lastToken = next;

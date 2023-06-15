@@ -73,7 +73,7 @@ export class AbstractionData {
     private _data: string
     private _funcName: string
 
-    constructor(string: string = '', funcName: string = '') {
+    constructor(string = '', funcName = '') {
         this._data = string
         this._funcName = funcName
     }

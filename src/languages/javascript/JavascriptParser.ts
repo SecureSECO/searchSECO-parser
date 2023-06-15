@@ -16,8 +16,8 @@ export default class Javascript extends ParserBase {
     private _minMethodSize: number
     private _minFunctionChars: number
 
-    constructor(minMethodSize: number, minFunctionChars: number) {
-        super()
+    constructor(basePath: string, minMethodSize: number, minFunctionChars: number) {
+        super(basePath)
         this._minMethodSize = minMethodSize
         this._minFunctionChars = minFunctionChars
     }

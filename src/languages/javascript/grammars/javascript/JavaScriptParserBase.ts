@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Parser, Lexer, TokenStream } from 'antlr4ts';
 import { JavaScriptParser } from '../../lib/JavaScriptParser';
 

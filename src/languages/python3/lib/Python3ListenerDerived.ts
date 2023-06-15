@@ -1,6 +1,6 @@
 import { TokenStreamRewriter } from "antlr4ts";
 import { Python3Listener } from "./Python3Listener";
-import { Expr_stmt_singleContext, FuncbodyContext, FunccallnameContext, FuncdefContext, NameContext, StringContext } from "./Python3Parser";
+import { FuncbodyContext, FunccallnameContext, FuncdefContext, NameContext, StringContext } from "./Python3Parser";
 import HashData from "../../../HashData";
 import md5 from "md5";
 
@@ -15,8 +15,8 @@ export default class CustomPython3Listener implements Python3Listener {
     protected readonly functionNames: string[]
     protected readonly functionBodies: string[]
     protected stop: number
-    protected inFunction: boolean = false
-    protected inSingleStatement: boolean = false
+    protected inFunction = false
+    protected inSingleStatement = false
     
     constructor(tsr: TokenStreamRewriter, filename: string, minMethodSize: number, minFunctionChars: number) {
         this.baseTSR = tsr
@@ -59,7 +59,7 @@ export default class CustomPython3Listener implements Python3Listener {
         }
     }
 
-    enterFuncbody(ctx: FuncbodyContext) {
+    enterFuncbody() {
         this.inFunction = true
     }
 
@@ -90,11 +90,11 @@ export default class CustomPython3Listener implements Python3Listener {
         } 
     }
 
-    enterExpr_stmt_single(ctx: Expr_stmt_singleContext){
+    enterExpr_stmt_single(){
         this.inSingleStatement = true
     }
 
-    exitExpr_stmt_single(ctx: Expr_stmt_singleContext){
+    exitExpr_stmt_single(){
         this.inSingleStatement = false
     }
 
@@ -104,20 +104,20 @@ export default class CustomPython3Listener implements Python3Listener {
         }
     }
 
-    visitTerminal(ctx: any) {
-
+    visitTerminal() {
+        /* empty */
     }
 
-    visitErrorNode(ctx: any) {
-
+    visitErrorNode() {
+        /* empty */
     }
 
-    enterEveryRule(ctx: any) {
-
+    enterEveryRule() {
+        /* empty */
     }
 
-    exitEveryRule(ctx: any) {
-
+    exitEveryRule() {
+        /* empty */
     }
 
 

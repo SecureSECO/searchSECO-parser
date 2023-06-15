@@ -1,5 +1,4 @@
 import HashData from "./HashData"
-import path from 'path'
 
 /**
  * The interface each language parser must implement
@@ -11,6 +10,11 @@ export interface IParser {
      * @param basePath stores the base directory path
      */
     readonly buffer: { fileName: string, basePath: string }[]
+
+    /**
+     * Tbase path of all files
+     */
+    readonly basePath: string
 
     /**
      * Parses the files stored in the buffer.
@@ -32,6 +36,11 @@ export interface IParser {
  */
 export abstract class ParserBase implements IParser {
     public readonly buffer: { fileName: string, basePath: string }[] = []
+    public readonly basePath: string
+
+    constructor(basePath: string) {
+        this.basePath = basePath
+    }
 
     public AddFile(fileName: string, basePath: string): void {
         this.buffer.push({fileName, basePath})
@@ -45,14 +54,19 @@ export abstract class ParserBase implements IParser {
      */
     protected abstract parseSingle(basePath: string, fileName: string): Promise<HashData[]>;
 
-    public async Parse(): Promise<HashData[]> {
+    public async Parse({ batchSize } = { batchSize: 10 }): Promise<HashData[]> {
         return Promise.resolve().then(async () => {
 
-            const promises = this.buffer.map(({ fileName, basePath }) => this.parseSingle(basePath, fileName))
-            const [...parsedFileHashes] = await Promise.all(promises)
+            const accumulator: HashData[] = []
 
-            this.clear()
-            return parsedFileHashes.flat()
+            while (this.buffer.length > 0) {
+                const batch = this.buffer.splice(0, batchSize)
+
+                const promises = batch.map(({ fileName, basePath }) => this.parseSingle(basePath, fileName))
+                const parsed = await Promise.all(promises)
+                accumulator.push(...parsed.flat())
+            }
+            return accumulator
         })
     }
 
