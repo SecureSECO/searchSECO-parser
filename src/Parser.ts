@@ -21,6 +21,19 @@ export enum ANTLRSupportedLanguage {
 const Language = { ...XMLSupportedLanguage, ...ANTLRSupportedLanguage }
 export type Language = XMLSupportedLanguage | ANTLRSupportedLanguage
 
+const EXCLUDE_PATTERNS = [
+    '.git', 
+    'test', 
+    'tests', 
+    'build',
+    'dist',
+    'demo',
+    'third_party',
+    'docs',
+    'node_modules', 
+    'generated'
+]
+
 /** 
  * Recursively retrieves file paths from all nested subdirectories in a root dir.
  * @param dir The root dir to list files from
@@ -30,7 +43,7 @@ export function getAllFiles(dir: string): string[] {
     function recursivelyGetFiles(currDir: string, acc: string[]): string[] {
         try {
             fs.readdirSync(currDir).forEach((file: string) => {
-                if (/(^.git)|(\\tests?\\)|(\\dist\\)|(\\build\\)|(\\node_modules\\)/.test(file.toLowerCase()))
+                if (EXCLUDE_PATTERNS.some(pat => file.toLowerCase().includes(pat)))
                     return acc
                 const abs_path = path.join(currDir, file);
                 try {

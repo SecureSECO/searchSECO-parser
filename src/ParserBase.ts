@@ -62,7 +62,7 @@ export abstract class ParserBase implements IParser {
             while (this.buffer.length > 0) {
                 const batch = this.buffer.splice(0, batchSize)
 
-                const promises = batch.map(({ fileName, basePath }) => this.parseSingle(basePath, fileName))
+                const promises = batch.map(async ({ fileName, basePath }) => await this.parseSingle(basePath, fileName))
                 const parsed = await Promise.all(promises)
                 accumulator.push(...parsed.flat())
             }

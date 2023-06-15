@@ -22,13 +22,13 @@ export default class Python extends ParserBase {
         this._minFunctionChars = minFunctionChars
     }
 
-    protected override parseSingle(basePath: string, fileName: string): Promise<HashData[]> {
+    protected override async parseSingle(basePath: string, fileName: string): Promise<HashData[]> {
         let data = ''
         try {
             data = fs.readFileSync(path.join(basePath, fileName), 'utf-8')
         } catch(e) {
             Logger.Debug(`Cannot read file ${fileName}. Skipping`, Logger.GetCallerLocation())
-            return
+            return Promise.resolve([])
         }
 
         const chars = new ANTLRInputStream(data)
