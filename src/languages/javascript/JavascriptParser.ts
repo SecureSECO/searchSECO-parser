@@ -28,7 +28,7 @@ export default class Javascript extends ParserBase {
             data = fs.readFileSync(path.join(basePath, fileName), 'utf-8')
         } catch(e) {
             Logger.Debug(`Cannot read file ${fileName}. Skipping`, Logger.GetCallerLocation())
-            return
+            return Promise.resolve([])
         }
 
         const chars = new ANTLRInputStream(data)
