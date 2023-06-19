@@ -12,7 +12,7 @@ import path from 'path'
 /**
  * The implementation of a Python3 parser. This parser inherits from `ParserBase`.
  */
-export default class Python extends ParserBase {
+export default class PythonParser extends ParserBase {
     private _minMethodSize: number
     private _minFunctionChars: number
 

@@ -12,7 +12,7 @@ import path from 'path'
 /**
  * The implementation of a Javascript parser. This parser inherits from `ParserBase`.
  */
-export default class Javascript extends ParserBase {
+export default class JavascriptParser extends ParserBase {
     private _minMethodSize: number
     private _minFunctionChars: number
 

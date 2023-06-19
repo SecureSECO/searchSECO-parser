@@ -1,7 +1,7 @@
 import HashData from "./HashData";
 import { IParser } from "./ParserBase";
-import Javascript from "./languages/javascript/JavascriptParser";
-import Python from "./languages/python3/PythonParser";
+import JavascriptParser from "./languages/javascript/JavascriptParser";
+import PythonParser from "./languages/python3/PythonParser";
 import * as fs from 'fs'
 import path from 'path'
 import XMLParser from "./srcML/XmlParser";
@@ -97,8 +97,8 @@ export default class Parser {
         Logger.SetVerbosity(verbosity)
 
         const parsers: Map<Language, IParser> = new Map<Language, IParser>([
-            [Language.JS, new Javascript(basePath, MIN_METHOD_LINES, MIN_FUNCTION_CHARS)],
-            [Language.PYTHON, new Python(basePath, MIN_METHOD_LINES, MIN_FUNCTION_CHARS)],
+            [Language.JS, new JavascriptParser(basePath, MIN_METHOD_LINES, MIN_FUNCTION_CHARS)],
+            [Language.PYTHON, new PythonParser(basePath, MIN_METHOD_LINES, MIN_FUNCTION_CHARS)],
             [Language.CPP, new XMLParser(basePath, Language.CPP, MIN_FUNCTION_CHARS, MIN_METHOD_LINES)],
             [Language.CSHARP, new XMLParser(basePath, Language.CSHARP, MIN_FUNCTION_CHARS, MIN_METHOD_LINES)],
             [Language.JAVA, new XMLParser(basePath, Language.JAVA, MIN_FUNCTION_CHARS, MIN_METHOD_LINES)]
@@ -125,9 +125,7 @@ export default class Parser {
             parser.AddFile(filename, basePath)
         })
 
-
-        const parserPromises = Array.from(parsers.values()).map(p => p.Parse())
-        const [...parserResults] = await Promise.all(parserPromises)
+        const parserResults = await Promise.all(Array.from(parsers.values()).map(p => p.Parse()))
     
         return { filenames, result: parserResults.flat() }
     }
