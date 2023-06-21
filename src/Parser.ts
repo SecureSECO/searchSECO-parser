@@ -31,7 +31,9 @@ const EXCLUDE_PATTERNS = [
     'third_party',
     'docs',
     'node_modules', 
-    'generated'
+    'generated',
+    'backup',
+    'examples'
 ]
 
 /** 
@@ -58,7 +60,7 @@ export function getAllFiles(dir: string): string[] {
             return acc
         }
     }
-    return recursivelyGetFiles(dir.replace('\\', '/'), [])
+    return recursivelyGetFiles(dir, [])
 }
 
 /** 
@@ -83,7 +85,6 @@ const MIN_METHOD_LINES = 0
 
 /**
  * The Javascript implementation of the SearchSECO parser. 
- * This parser is a static class that holds references to the individual language parsers.
  */
 export default class Parser {
     /** 
@@ -125,6 +126,7 @@ export default class Parser {
             parser.AddFile(filename, basePath)
         })
 
+        Logger.Info(`Parsing ${filenames.length} files`, Logger.GetCallerLocation())
         const parserResults = await Promise.all(Array.from(parsers.values()).map(p => p.Parse()))
     
         return { filenames, result: parserResults.flat() }

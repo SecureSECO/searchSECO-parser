@@ -1,4 +1,5 @@
 import HashData from "./HashData"
+import Logger from "./searchSECO-logger/src/Logger"
 
 /**
  * The interface each language parser must implement
@@ -56,14 +57,13 @@ export abstract class ParserBase implements IParser {
 
     public async Parse({ batchSize } = { batchSize: 10 }): Promise<HashData[]> {
         return Promise.resolve().then(async () => {
-
             const accumulator: HashData[] = []
-
+            const originalSize = this.buffer.length
             while (this.buffer.length > 0) {
                 const batch = this.buffer.splice(0, batchSize)
-
                 const promises = batch.map(async ({ fileName, basePath }) => await this.parseSingle(basePath, fileName))
                 const parsed = await Promise.all(promises)
+                Logger.Info(`${(100 - (this.buffer.length/originalSize*100)).toFixed(2)}% done`, Logger.GetCallerLocation())
                 accumulator.push(...parsed.flat())
             }
             return accumulator
