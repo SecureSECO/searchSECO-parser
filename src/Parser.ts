@@ -1,6 +1,6 @@
 /**
  * This program has been developed by students from the bachelor Computer Science at Utrecht University within the Software Project course.
- * © Copyright Utrecht University (Department of Information and Computing Sciences)
+ * ï¿½ Copyright Utrecht University (Department of Information and Computing Sciences)
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -42,7 +42,8 @@ const EXCLUDE_PATTERNS = [
     'generated',
     'backup',
     'examples',
-    '.min.'
+    '.min.',
+    '-min.'
 ]
 
 /** 
@@ -96,17 +97,20 @@ const MIN_METHOD_LINES = 0
  * The Javascript implementation of the SearchSECO parser. 
  */
 export default class Parser {
+    constructor(verbosity: Verbosity) {
+        Logger.SetModule('parser')
+        Logger.SetVerbosity(verbosity)
+    }
+
     /** 
      * Parses a list of files or a whole directory based on a path. This method is static.
      * @param basePath The path of the directory to parse all files from
      * @returns A tuple containing the list of filenames parsed, and a Map. The keys of this map are the file names, 
      * and the values are HashData objects containing data about the parsed functions.
      */
-    public static async ParseFiles(basePath: string, verbosity: Verbosity = Verbosity.DEBUG): Promise<{filenames: string[], result: HashData[]}> {
-        Logger.SetModule("parser")
-        Logger.SetVerbosity(verbosity)
+    public async ParseFiles(basePath: string): Promise<{filenames: string[], result: HashData[]}> {
 
-        const parsers: Map<Language, IParser> = new Map<Language, IParser>([
+        const parsers = new Map<Language, IParser>([
             [Language.JS, new JavascriptParser(basePath, MIN_METHOD_LINES, MIN_FUNCTION_CHARS)],
             [Language.PYTHON, new PythonParser(basePath, MIN_METHOD_LINES, MIN_FUNCTION_CHARS)],
             [Language.CPP, new XMLParser(basePath, Language.CPP, MIN_FUNCTION_CHARS, MIN_METHOD_LINES)],

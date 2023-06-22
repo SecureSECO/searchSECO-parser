@@ -31,48 +31,51 @@ export default class PythonParser extends ParserBase {
     }
 
     protected override async parseSingle(basePath: string, fileName: string): Promise<HashData[]> {
-        let data = ''
-        try {
-            data = fs.readFileSync(path.join(basePath, fileName), 'utf-8')
-        } catch(e) {
-            Logger.Debug(`Cannot read file ${fileName}. Skipping`, Logger.GetCallerLocation())
-            return Promise.resolve([])
-        }
+        return new Promise(resolve => {
+            let data = ''
+            try {
+                data = fs.readFileSync(path.join(basePath, fileName), 'utf-8')
+            } catch(e) {
+                Logger.Debug(`Cannot read file ${fileName}. Skipping`, Logger.GetCallerLocation())
+                resolve([])
+            }
+    
+            const chars = new ANTLRInputStream(data)
+            const lexer = new Python3Lexer(chars)
+            const tokens = new CommonTokenStream(lexer)
+    
+            try {
+                tokens.fill()
+            } catch(e) {
+                Logger.Warning(`Error while tokenizing file: ${fileName}, skipping. Error: ${e}`, Logger.GetCallerLocation())
+                resolve([])
+            }
+    
+            const parser = new Python3Parser(tokens)
+    
+            parser.removeErrorListeners()
+    
+            const rewriter = new TokenStreamRewriter(tokens)
+    
+            parser.buildParseTree = true
+    
+            let tree: File_inputContext
+            try {
+                tree = parser.file_input()
+            } catch (e) {
+                Logger.Warning(`Error while walking file: ${fileName}, skipping. Error: ${e}`, Logger.GetCallerLocation())
+                resolve([])
+            }
+    
+            const listener = new Python3Listener(rewriter, fileName, this._minMethodSize, this._minFunctionChars)
+    
+            ParseTreeWalker.DEFAULT.walk(listener, tree)
+    
+            const hashes = listener.GetData()
+            Logger.Debug(`Finished parsing file ${fileName}. Number of functions found: ${hashes.length}`, Logger.GetCallerLocation())
 
-        const chars = new ANTLRInputStream(data)
-        const lexer = new Python3Lexer(chars)
-        const tokens = new CommonTokenStream(lexer)
-
-        try {
-            tokens.fill()
-        } catch(e) {
-            Logger.Warning(`Error while tokenizing file: ${fileName}, skipping. Error: ${e}`, Logger.GetCallerLocation())
-            return Promise.resolve([])
-        }
-
-        const parser = new Python3Parser(tokens)
-
-        parser.removeErrorListeners()
-
-        const rewriter = new TokenStreamRewriter(tokens)
-
-        parser.buildParseTree = true
-
-        let tree: File_inputContext
-        try {
-            tree = parser.file_input()
-        } catch (e) {
-            Logger.Warning(`Error while walking file: ${fileName}, skipping. Error: ${e}`, Logger.GetCallerLocation())
-            return Promise.resolve([])
-        }
-
-        const listener = new Python3Listener(rewriter, fileName, this._minMethodSize, this._minFunctionChars)
-
-        ParseTreeWalker.DEFAULT.walk(listener, tree)
-
-        const hashes = listener.GetData()
-        Logger.Debug(`Finished parsing file ${fileName}. Number of functions found: ${hashes.length}`, Logger.GetCallerLocation())
-        return Promise.resolve(hashes)
+            resolve(hashes)
+        })
     }
 }
 

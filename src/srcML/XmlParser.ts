@@ -144,7 +144,7 @@ export default class XMLParser extends ParserBase {
         return this._hashes
     }
 
-    private async parseToXML(path: string): Promise<string> {
+    private parseToXML(path: string): string {
         const cmd = `srcml "${path}" -l ${this._language}`
         try {
             const stdout = execSync(cmd)
@@ -156,12 +156,15 @@ export default class XMLParser extends ParserBase {
     }
 
     protected async parseSingle(basePath: string, fileName: string): Promise<HashData[]> {
-        const xmlString = await this.parseToXML(path.join(basePath, fileName))
-        this._currentFileName = fileName
-        const hashes = this.parseXMLStream(new StringStream(xmlString))
-        this.Reset()
-        Logger.Debug(`Finished parsing file ${fileName}. Number of functions found: ${hashes.length}`, Logger.GetCallerLocation())
-        return hashes
+        return new Promise(resolve => {
+            const xmlString = this.parseToXML(path.join(basePath, fileName))
+            this._currentFileName = fileName
+            const hashes = this.parseXMLStream(new StringStream(xmlString))
+            this.Reset()
+            Logger.Debug(`Finished parsing file ${fileName}. Number of functions found: ${hashes.length}`, Logger.GetCallerLocation())
+            resolve(hashes)
+        })
+
     }
 
     private Reset() {
