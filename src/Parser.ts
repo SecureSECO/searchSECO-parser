@@ -33,7 +33,8 @@ const EXCLUDE_PATTERNS = [
     'node_modules', 
     'generated',
     'backup',
-    'examples'
+    'examples',
+    '.min.'
 ]
 
 /** 
