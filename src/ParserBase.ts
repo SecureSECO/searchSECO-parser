@@ -1,6 +1,6 @@
 /**
  * This program has been developed by students from the bachelor Computer Science at Utrecht University within the Software Project course.
- * © Copyright Utrecht University (Department of Information and Computing Sciences)
+ * ï¿½ Copyright Utrecht University (Department of Information and Computing Sciences)
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -18,7 +18,7 @@ export interface IParser {
      * @param fileName stores the name of the file
      * @param basePath stores the base directory path
      */
-    readonly buffer: { fileName: string, basePath: string }[]
+    readonly buffer: string[]
 
     /**
      * Tbase path of all files
@@ -36,7 +36,7 @@ export interface IParser {
      * @param fileName The fileName to store
      * @param basePath The base path of the root directory
      */
-    AddFile(fileName: string, basePath: string): void
+    AddFile(fileName: string): void
 }
 
 /** 
@@ -44,15 +44,15 @@ export interface IParser {
  * Each language parser deriving from this base has to implement `parseSingle()` themselves.
  */
 export abstract class ParserBase implements IParser {
-    public readonly buffer: { fileName: string, basePath: string }[] = []
+    public readonly buffer: string[] = []
     public readonly basePath: string
 
     constructor(basePath: string) {
         this.basePath = basePath
     }
 
-    public AddFile(fileName: string, basePath: string): void {
-        this.buffer.push({fileName, basePath})
+    public AddFile(fileName: string): void {
+        this.buffer.push(fileName)
     }
 
     /**
@@ -61,14 +61,18 @@ export abstract class ParserBase implements IParser {
      * @param fileName The filename
      * @returns a `HashData` array describing each method in the file.
      */
-    protected abstract parseSingle(basePath: string, fileName: string): Promise<HashData[]>;
+    protected abstract parseSingle(basePath: string, fileName: string, clearCache: boolean): Promise<HashData[]>;
 
     public async Parse({ batchSize } = { batchSize: 10 }): Promise<HashData[]> {
         const accumulator: HashData[] = []
         const originalSize = this.buffer.length
         while (this.buffer.length > 0) {
             const batch = this.buffer.splice(0, batchSize)
-            const promises = batch.map(({ fileName, basePath }) => this.parseSingle(basePath, fileName))
+            const promises = batch.map((fileName, idx) => {
+                // clear antlr cache at the end of the batch
+                const clearCache = idx == batchSize-1
+                return this.parseSingle(this.basePath, fileName, clearCache)
+            })
             const parsed = await Promise.all(promises)
             Logger.Info(`${(100 - (this.buffer.length/originalSize*100)).toFixed(2)}% done`, Logger.GetCallerLocation())
             accumulator.push(...parsed.flat())

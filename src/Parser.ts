@@ -15,6 +15,8 @@ import path from 'path'
 import XMLParser from "./srcML/XmlParser";
 import Logger, { Verbosity } from "./searchSECO-logger/src/Logger";
 
+
+
 export enum XMLSupportedLanguage {
     CPP = "C++",
     CSHARP = "C#",
@@ -43,7 +45,10 @@ const EXCLUDE_PATTERNS = [
     'backup',
     'examples',
     '.min.',
-    '-min.'
+    '-min.',
+    'static',
+    'public',
+    'vendor'
 ]
 
 /** 
@@ -136,12 +141,13 @@ export default class Parser {
             }
 
             Logger.Debug(`Parsing ${filename}`, Logger.GetCallerLocation())
-            parser.AddFile(filename, basePath)
+            parser.AddFile(filename)
         })
 
         Logger.Info(`Parsing ${filenames.length} files`, Logger.GetCallerLocation())
         const parserResults = await Promise.all(Array.from(parsers.values()).map(p => p.Parse()))
-    
+        parsers.clear()
+
         return { filenames, result: parserResults.flat() }
     }
 }

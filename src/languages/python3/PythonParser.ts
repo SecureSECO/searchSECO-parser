@@ -1,6 +1,6 @@
 /**
  * This program has been developed by students from the bachelor Computer Science at Utrecht University within the Software Project course.
- * © Copyright Utrecht University (Department of Information and Computing Sciences)
+ * ï¿½ Copyright Utrecht University (Department of Information and Computing Sciences)
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -30,7 +30,7 @@ export default class PythonParser extends ParserBase {
         this._minFunctionChars = minFunctionChars
     }
 
-    protected override async parseSingle(basePath: string, fileName: string): Promise<HashData[]> {
+    protected override async parseSingle(basePath: string, fileName: string, clearCache: boolean): Promise<HashData[]> {
         return new Promise(resolve => {
             let data = ''
             try {
@@ -73,6 +73,13 @@ export default class PythonParser extends ParserBase {
     
             const hashes = listener.GetData()
             Logger.Debug(`Finished parsing file ${fileName}. Number of functions found: ${hashes.length}`, Logger.GetCallerLocation())
+
+            tree = undefined
+
+            if (clearCache) {
+                lexer.atn.clearDFA()
+                parser.atn.clearDFA()
+            }
 
             resolve(hashes)
         })
