@@ -48,7 +48,8 @@ const EXCLUDE_PATTERNS = [
     '-min.',
     'static',
     'public',
-    'vendor'
+    'vendor',
+    'assets'
 ]
 
 /** 
