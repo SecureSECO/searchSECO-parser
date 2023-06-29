@@ -6,84 +6,84 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import HashData from "./HashData"
-import Logger from "./searchSECO-logger/src/Logger"
+import HashData from './HashData';
+import Logger from './searchSECO-logger/src/Logger';
 
 /**
  * The interface each language parser must implement
  */
 export interface IParser {
-    /**
-     * The files pending to be parsed.
-     * @param fileName stores the name of the file
-     * @param basePath stores the base directory path
-     */
-    readonly buffer: string[]
+	/**
+	 * The files pending to be parsed.
+	 * @param fileName stores the name of the file
+	 * @param basePath stores the base directory path
+	 */
+	readonly buffer: string[];
 
-    /**
-     * Tbase path of all files
-     */
-    readonly basePath: string
+	/**
+	 * Tbase path of all files
+	 */
+	readonly basePath: string;
 
-    /**
-     * Parses the files stored in the buffer.
-     * @returns A promise which resolves to a HashData array
-     */
-    Parse(): Promise<HashData[]>
+	/**
+	 * Parses the files stored in the buffer.
+	 * @returns A promise which resolves to a HashData array
+	 */
+	Parse(): Promise<HashData[]>;
 
-    /**
-     * Adds a file to the buffer.
-     * @param fileName The fileName to store
-     * @param basePath The base path of the root directory
-     */
-    AddFile(fileName: string): void
+	/**
+	 * Adds a file to the buffer.
+	 * @param fileName The fileName to store
+	 * @param basePath The base path of the root directory
+	 */
+	AddFile(fileName: string): void;
 }
 
-/** 
+/**
  * The parser base encapsulating common functionality between all language parsers.
  * Each language parser deriving from this base has to implement `parseSingle()` themselves.
  */
 export abstract class ParserBase implements IParser {
-    public readonly buffer: string[] = []
-    public readonly basePath: string
+	public readonly buffer: string[] = [];
+	public readonly basePath: string;
 
-    constructor(basePath: string) {
-        this.basePath = basePath
-    }
+	constructor(basePath: string) {
+		this.basePath = basePath;
+	}
 
-    public AddFile(fileName: string): void {
-        this.buffer.push(fileName)
-    }
+	public AddFile(fileName: string): void {
+		this.buffer.push(fileName);
+	}
 
-    /**
-     * Parses a single file.
-     * @param basePath The root directory
-     * @param fileName The filename
-     * @returns a `HashData` array describing each method in the file.
-     */
-    protected abstract parseSingle(basePath: string, fileName: string, clearCache: boolean): Promise<HashData[]>;
+	/**
+	 * Parses a single file.
+	 * @param basePath The root directory
+	 * @param fileName The filename
+	 * @returns a `HashData` array describing each method in the file.
+	 */
+	protected abstract parseSingle(basePath: string, fileName: string, clearCache: boolean): Promise<HashData[]>;
 
-    public async Parse({ batchSize } = { batchSize: 10 }): Promise<HashData[]> {
-        const accumulator: HashData[] = []
-        const originalSize = this.buffer.length
-        while (this.buffer.length > 0) {
-            const batch = this.buffer.splice(0, batchSize)
-            const promises = batch.map((fileName, idx) => {
-                // clear antlr cache at the end of the batch
-                const clearCache = idx == batchSize-1
-                return this.parseSingle(this.basePath, fileName, clearCache)
-            })
-            const parsed = await Promise.all(promises)
-            Logger.Info(`${(100 - (this.buffer.length/originalSize*100)).toFixed(2)}% done`, Logger.GetCallerLocation())
-            accumulator.push(...parsed.flat())
-        }
-        return accumulator
-    }
+	public async Parse({ batchSize } = { batchSize: 10 }): Promise<HashData[]> {
+		const accumulator: HashData[] = [];
+		const originalSize = this.buffer.length;
+		while (this.buffer.length > 0) {
+			const batch = this.buffer.splice(0, batchSize);
+			const promises = batch.map((fileName, idx) => {
+				// clear antlr cache at the end of the batch
+				const clearCache = idx == batchSize - 1;
+				return this.parseSingle(this.basePath, fileName, clearCache);
+			});
+			const parsed = await Promise.all(promises);
+			Logger.Info(`${(100 - (this.buffer.length / originalSize) * 100).toFixed(2)}% done`, Logger.GetCallerLocation());
+			accumulator.push(...parsed.flat());
+		}
+		return accumulator;
+	}
 
-    /**
-     * Clears the file buffer
-     */
-    private clear(): void {
-        this.buffer.length = 0
-    }
+	/**
+	 * Clears the file buffer
+	 */
+	private clear(): void {
+		this.buffer.length = 0;
+	}
 }
