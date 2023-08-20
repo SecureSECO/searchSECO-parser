@@ -44,7 +44,7 @@ describe('The parser', () => {
 		expect(hashes.length).toBe(expectedHashes.length);
 	});
 
-	it('extracts correct function hashes', () => {
+	it('extracts correct method hashes', () => {
 		hashes.forEach((hash) => {
 			expect(expectedHashes).toContain(hash);
 			const idx = expectedHashes.indexOf(hash);

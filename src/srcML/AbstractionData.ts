@@ -8,16 +8,16 @@
 
 import { Node } from './Node';
 
-function collapseNodes(node: Node, abstraction: AbstractionData, inFunction: boolean) {
+function collapseNodes(node: Node, abstraction: AbstractionData, inMethod: boolean) {
 	const children = node.GetBranches();
-	nodeToString(node, abstraction, inFunction);
+	nodeToString(node, abstraction, inMethod);
 
 	children.forEach((child: Node) => {
-		collapseNodes(child, abstraction, inFunction);
+		collapseNodes(child, abstraction, inMethod);
 	});
 }
 
-function nodeToString(node: Node, abstraction: AbstractionData, inFunction: boolean) {
+function nodeToString(node: Node, abstraction: AbstractionData, inMethod: boolean) {
 	if (node.GetBranches().length > 0) return;
 
 	const content = node.GetContent();
@@ -31,23 +31,23 @@ function nodeToString(node: Node, abstraction: AbstractionData, inFunction: bool
 				while (parent.GetTag() === 'name') parent = parent.GetPrevious();
 
 				if (parent.GetTag() === 'type') {
-					if (inFunction) abstraction.AddString(content);
+					if (inMethod) abstraction.AddString(content);
 					return;
 				} else if (parent.GetTag() === 'call') {
-					if (inFunction) abstraction.AddString('funccall');
+					if (inMethod) abstraction.AddString('funccall');
 					return;
 				} else if (parent.GetTag() === 'function') {
-					if (inFunction) abstraction.AddString('funcname');
-					abstraction.SetFunctionName(content);
+					if (inMethod) abstraction.AddString('funcname');
+					abstraction.SetMethodName(content);
 					return;
 				}
 			}
 
-			if (inFunction) abstraction.AddString('var');
+			if (inMethod) abstraction.AddString('var');
 			break;
 		}
 		default: {
-			if (inFunction) abstraction.AddString(content);
+			if (inMethod) abstraction.AddString(content);
 			break;
 		}
 	}
@@ -82,7 +82,7 @@ export class AbstractionData {
 		return this._data;
 	}
 
-	public GetFunctionName() {
+	public GetMethodName() {
 		return this._funcName;
 	}
 
@@ -90,7 +90,7 @@ export class AbstractionData {
 		this._data = this._data.concat(str);
 	}
 
-	public SetFunctionName(name: string) {
+	public SetMethodName(name: string) {
 		this._funcName = name;
 	}
 }

@@ -7,21 +7,27 @@
  */
 
 /**
- * The HashData object to store data about parsed functions.
+ * The HashData object to store data about parsed methods.
  */
 export default class HashData {
 	public Hash: string;
 	public FileName: string;
-	public FunctionName: string;
+	public MethodName: string;
 	public LineNumber: number;
 	public LineNumberEnd: number;
 	public VulnCode = '';
 
-	constructor(hash?: string, filename?: string, functionName?: string, lineNumber?: number, lineNumberEnd?: number) {
+	constructor(hash?: string, filename?: string, methodName?: string, lineNumber?: number, lineNumberEnd?: number) {
 		this.Hash = hash || '';
 		this.FileName = filename || '';
-		this.FunctionName = functionName || '';
+		this.MethodName = methodName || '';
 		this.LineNumber = lineNumber || -1;
 		this.LineNumberEnd = lineNumberEnd || -1;
+	}
+
+	public Equals(other: HashData): boolean {
+		const thisValues = Object.values(this).map(x => x.toString())
+		const otherValues = Object.values(other).map(x => x.toString())
+		return thisValues.reduce((isSame, currVal, i) => isSame && currVal === otherValues[i],true)
 	}
 }

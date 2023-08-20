@@ -22,12 +22,12 @@ import path from 'path';
  */
 export default class JavascriptParser extends ParserBase {
 	private _minMethodSize: number;
-	private _minFunctionChars: number;
+	private _minMethodChars: number;
 
-	constructor(basePath: string, minMethodSize: number, minFunctionChars: number) {
+	constructor(basePath: string, minMethodSize: number, minMethodChars: number) {
 		super(basePath);
 		this._minMethodSize = minMethodSize;
-		this._minFunctionChars = minFunctionChars;
+		this._minMethodChars = minMethodChars;
 	}
 
 	protected override parseSingle(basePath: string, fileName: string, clearCache: boolean): Promise<HashData[]> {
@@ -65,13 +65,13 @@ export default class JavascriptParser extends ParserBase {
 				resolve([]);
 			}
 
-			const listener = new JSListener(rewriter, fileName, this._minMethodSize, this._minFunctionChars);
+			const listener = new JSListener(rewriter, fileName, this._minMethodSize, this._minMethodChars);
 
 			ParseTreeWalker.DEFAULT.walk(listener, tree);
 
 			const hashes = listener.GetData();
 			Logger.Debug(
-				`Finished parsing file ${fileName}. Number of functions found: ${hashes.length}`,
+				`Finished parsing file ${fileName}. Number of methods found: ${hashes.length}`,
 				Logger.GetCallerLocation()
 			);
 

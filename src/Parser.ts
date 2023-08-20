@@ -77,7 +77,7 @@ export function getAllFiles(dir: string): string[] {
  * @returns A tuple containing the filename and the language. If the language is not supported, undefined is returned.
  */
 function getFileNameAndLanguage(filepath: string, basePath: string): { filename: string; lang: Language | undefined } {
-	const filename = filepath.replace(basePath, '.');
+	const filename = filepath.replace(basePath, '.').replace(/\\|\\\\/g, '/');
 	switch (filename?.split('.').pop()?.toLowerCase()) {
 		case 'py':
 			return { filename, lang: Language.PYTHON };
@@ -96,11 +96,13 @@ function getFileNameAndLanguage(filepath: string, basePath: string): { filename:
 
 const MIN_FUNCTION_CHARS = 0;
 const MIN_METHOD_LINES = 0;
+export const PARSER_VERSION = 1
 
 /**
  * The Javascript implementation of the SearchSECO parser.
  */
 export default class Parser {
+
 	constructor(verbosity: Verbosity) {
 		Logger.SetModule('parser');
 		Logger.SetVerbosity(verbosity);
@@ -110,7 +112,7 @@ export default class Parser {
 	 * Parses a list of files or a whole directory based on a path. This method is static.
 	 * @param basePath The path of the directory to parse all files from
 	 * @returns A tuple containing the list of filenames parsed, and a Map. The keys of this map are the file names,
-	 * and the values are HashData objects containing data about the parsed functions.
+	 * and the values are HashData objects containing data about the parsed methods.
 	 */
 	public async ParseFiles(basePath: string): Promise<{ filenames: string[]; result: HashData[] }> {
 		const parsers = new Map<Language, IParser>([

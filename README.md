@@ -1,5 +1,5 @@
 # SearchSECO-Parser
-This is the Parser used by the SearchSECO project, it uses srcML to structure C, C++, C#, and Java code into an xml format. It then extracts methods from code files which it then abstracts to find Type-1 and Type-2 code clones (abstracting comments, white spaces, variable names, and function calls). It also supports the parsing of Python and Javascript using a custom parser built using ANTLR, applying the same type of abstraction.
+This is the Parser used by the SearchSECO project, it uses srcML to structure C, C++, C#, and Java code into an xml format. It then extracts methods from code files which it then abstracts to find Type-1 and Type-2 code clones (abstracting comments, white spaces, variable names, and method calls). It also supports the parsing of Python and Javascript using a custom parser built using ANTLR, applying the same type of abstraction.
 
 ## License
 
