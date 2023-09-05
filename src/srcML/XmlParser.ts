@@ -32,9 +32,9 @@ export default class XMLParser extends ParserBase {
 	private _methodCount = 0;
 	private _currentFile = 0;
 
-	constructor(basePath: string, lang: Language, minMethodChars = 0, minMethodLines = 0) {
-		super(basePath);
-		this._language = lang;
+	constructor(basePath: string, minMethodChars = 0, minMethodLines = 0, language: Language) {
+		super(basePath, 'XML Parser', language);
+		this._language = language;
 		this._minMethodChars = minMethodChars;
 		this._minMethodLines = minMethodLines;
 	}
@@ -155,18 +155,12 @@ export default class XMLParser extends ParserBase {
 		}
 	}
 
-	protected async parseSingle(basePath: string, fileName: string): Promise<HashData[]> {
-		return new Promise((resolve) => {
-			const xmlString = this.parseToXML(path.join(basePath, fileName));
-			this._currentFileName = fileName;
-			const hashes = this.parseXMLStream(new StringStream(xmlString));
-			this.Reset();
-			Logger.Debug(
-				`Finished parsing file ${fileName}. Number of methods found: ${hashes.length}`,
-				Logger.GetCallerLocation()
-			);
-			resolve(hashes);
-		});
+	public override ParseSingle(fileName: string): HashData[] {
+		const xmlString = this.parseToXML(path.join(this.basePath, fileName));
+		this._currentFileName = fileName;
+		const hashes = this.parseXMLStream(new StringStream(xmlString));
+		this.Reset();
+		return hashes;
 	}
 
 	private Reset() {

@@ -7,7 +7,7 @@
  */
 
 import HashData from './HashData';
-import { IParser } from './ParserBase';
+import { IParser, ParserBase, ParserConstructor } from './ParserBase';
 import JavascriptParser from './languages/javascript/JavascriptParser';
 import PythonParser from './languages/python3/PythonParser';
 import * as fs from 'fs';
@@ -26,7 +26,7 @@ export enum ANTLRSupportedLanguage {
 	JS = 'Javascript',
 }
 
-const Language = { ...XMLSupportedLanguage, ...ANTLRSupportedLanguage };
+export const Language = { ...XMLSupportedLanguage, ...ANTLRSupportedLanguage };
 export type Language = XMLSupportedLanguage | ANTLRSupportedLanguage;
 
 const EXCLUDE_PATTERNS = [
@@ -41,8 +41,8 @@ const EXCLUDE_PATTERNS = [
 	'generated',
 	'backup',
 	'examples',
-    '.min.',
-    '-min.'
+	'.min.',
+	'-min.',
 ];
 
 /**
@@ -94,18 +94,26 @@ function getFileNameAndLanguage(filepath: string, basePath: string): { filename:
 	}
 }
 
-const MIN_FUNCTION_CHARS = 0;
-const MIN_METHOD_LINES = 0;
-export const PARSER_VERSION = 1
+export const MIN_FUNCTION_CHARS = 0;
+export const MIN_METHOD_LINES = 0;
+export const ParserConstructors = new Map<Language, ParserConstructor<ParserBase>>([
+	[Language.JS, JavascriptParser],
+	[Language.PYTHON, PythonParser],
+	[Language.CPP, XMLParser],
+	[Language.JAVA, XMLParser],
+	[Language.CSHARP, XMLParser],
+]);
+export const PARSER_VERSION = 1;
 
 /**
  * The Javascript implementation of the SearchSECO parser.
  */
 export default class Parser {
-
-	constructor(verbosity: Verbosity) {
+	private _threadCount: number;
+	constructor(verbosity: Verbosity, threadCount: number) {
 		Logger.SetModule('parser');
 		Logger.SetVerbosity(verbosity);
+		this._threadCount = threadCount;
 	}
 
 	/**
@@ -114,13 +122,16 @@ export default class Parser {
 	 * @returns A tuple containing the list of filenames parsed, and a Map. The keys of this map are the file names,
 	 * and the values are HashData objects containing data about the parsed methods.
 	 */
-	public async ParseFiles(basePath: string): Promise<{ filenames: string[]; result: HashData[] }> {
+	public async ParseFiles(
+		basePath: string,
+		data?: Map<string, string>
+	): Promise<{ filenames: string[]; result: HashData[] }> {
 		const parsers = new Map<Language, IParser>([
 			[Language.JS, new JavascriptParser(basePath, MIN_METHOD_LINES, MIN_FUNCTION_CHARS)],
 			[Language.PYTHON, new PythonParser(basePath, MIN_METHOD_LINES, MIN_FUNCTION_CHARS)],
-			[Language.CPP, new XMLParser(basePath, Language.CPP, MIN_FUNCTION_CHARS, MIN_METHOD_LINES)],
-			[Language.CSHARP, new XMLParser(basePath, Language.CSHARP, MIN_FUNCTION_CHARS, MIN_METHOD_LINES)],
-			[Language.JAVA, new XMLParser(basePath, Language.JAVA, MIN_FUNCTION_CHARS, MIN_METHOD_LINES)],
+			[Language.CPP, new XMLParser(basePath, MIN_FUNCTION_CHARS, MIN_METHOD_LINES, Language.CPP)],
+			[Language.CSHARP, new XMLParser(basePath, MIN_FUNCTION_CHARS, MIN_METHOD_LINES, Language.CSHARP)],
+			[Language.JAVA, new XMLParser(basePath, MIN_FUNCTION_CHARS, MIN_METHOD_LINES, Language.JAVA)],
 		]);
 
 		const files = getAllFiles(basePath);
@@ -140,12 +151,14 @@ export default class Parser {
 				return;
 			}
 
-			Logger.Debug(`Parsing ${filename}`, Logger.GetCallerLocation());
-			parser.AddFile(filename);
+			const data = fs.readFileSync(path.join(basePath, filename), 'utf-8');
+			parser.AddFile(filename, data);
 		});
 
 		Logger.Info(`Parsing ${filenames.length} files`, Logger.GetCallerLocation());
-		const parserResults = await Promise.all(Array.from(parsers.values()).map((p) => p.Parse()));
+		const parserResults = await Promise.all(
+			Array.from(parsers.values()).map((p) => p.ParallelParse({ threadCount: this._threadCount }))
+		);
 		parsers.clear();
 
 		return { filenames, result: parserResults.flat() };

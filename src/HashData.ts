@@ -26,8 +26,8 @@ export default class HashData {
 	}
 
 	public Equals(other: HashData): boolean {
-		const thisValues = Object.values(this).map(x => x.toString())
-		const otherValues = Object.values(other).map(x => x.toString())
-		return thisValues.reduce((isSame, currVal, i) => isSame && currVal === otherValues[i],true)
+		const thisValues = Object.values(this).map((x) => x.toString());
+		const otherValues = Object.values(other).map((x) => x.toString());
+		return thisValues.reduce((isSame, currVal, i) => isSame && currVal === otherValues[i], true);
 	}
 }

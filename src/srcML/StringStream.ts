@@ -20,9 +20,7 @@ export default class StringStream {
 	}
 
 	public NextChar(): string {
-		const char = this._buffer[this._readHead];
-		this._readHead++;
-		return char;
+		return this._buffer[this._readHead++];
 	}
 
 	public Empty(): boolean {
