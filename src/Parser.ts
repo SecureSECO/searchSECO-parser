@@ -14,6 +14,7 @@ import * as fs from 'fs';
 import path from 'path';
 import XMLParser from './srcML/XmlParser';
 import Logger, { Verbosity } from './searchSECO-logger/src/Logger';
+import { execSync } from 'child_process'
 
 export enum XMLSupportedLanguage {
 	CPP = 'C++',
@@ -94,6 +95,15 @@ function getFileNameAndLanguage(filepath: string, basePath: string): { filename:
 	}
 }
 
+function LanguageSupported(lang: Language): boolean {
+	if (Object.keys(XMLSupportedLanguage).includes(lang)) {
+		const stdout = execSync('srcml --help')
+		const srcml = stdout.toString().substring(4)
+		return srcml === 'srcml'
+	}
+	return false
+}
+
 export const MIN_FUNCTION_CHARS = 0;
 export const MIN_METHOD_LINES = 0;
 export const ParserConstructors = new Map<Language, ParserConstructor<ParserBase>>([
@@ -110,6 +120,8 @@ export const PARSER_VERSION = 1;
  */
 export default class Parser {
 	private _threadCount: number;
+	private _srcmlChecked: boolean = false
+	private _srcmlSupported: boolean = true
 	constructor(verbosity: Verbosity, threadCount: number) {
 		Logger.SetModule('parser');
 		Logger.SetVerbosity(verbosity);
@@ -140,17 +152,25 @@ export default class Parser {
 		files.forEach((file) => {
 			const { filename, lang } = getFileNameAndLanguage(file, basePath);
 
-			if (!lang) {
-				return;
+			if (!lang)
+				return
+
+			if (Object.keys(XMLSupportedLanguage).includes(lang)) {
+				if (!this._srcmlSupported)
+					return
+				if (!this._srcmlChecked && !LanguageSupported(lang)) {
+					this._srcmlChecked = true
+					Logger.Error(
+						`Parsing of file ${filename} failed because srcML is not installed.\n Please install the CLI (https://www.srcml.org/#download).\n Future files of this language type will be ignored.
+						`, Logger.GetCallerLocation()
+					)
+					this._srcmlSupported = false
+					return;
+				}
 			}
 
 			filenames.push(filename);
 			const parser = parsers.get(lang);
-			if (!parser) {
-				Logger.Debug(`Could not associate a parser with specified language`, Logger.GetCallerLocation());
-				return;
-			}
-
 			const data = fs.readFileSync(path.join(basePath, filename), 'utf-8');
 			parser.AddFile(filename, data);
 		});
