@@ -97,7 +97,7 @@ function getFileNameAndLanguage(filepath: string, basePath: string): { filename:
 
 function LanguageSupported(lang: Language): boolean {
 	if (Object.keys(XMLSupportedLanguage).includes(lang)) {
-		const stdout = execSync('srcml --help')
+		const stdout = execSync('srcml --version')
 		const srcml = stdout.toString().substring(4)
 		return srcml === 'srcml'
 	}
@@ -138,18 +138,10 @@ export default class Parser {
 		basePath: string,
 		data?: Map<string, string>
 	): Promise<{ filenames: string[]; result: HashData[] }> {
-		const parsers = new Map<Language, IParser>([
-			[Language.JS, new JavascriptParser(basePath, MIN_METHOD_LINES, MIN_FUNCTION_CHARS)],
-			[Language.PYTHON, new PythonParser(basePath, MIN_METHOD_LINES, MIN_FUNCTION_CHARS)],
-			[Language.CPP, new XMLParser(basePath, MIN_FUNCTION_CHARS, MIN_METHOD_LINES, Language.CPP)],
-			[Language.CSHARP, new XMLParser(basePath, MIN_FUNCTION_CHARS, MIN_METHOD_LINES, Language.CSHARP)],
-			[Language.JAVA, new XMLParser(basePath, MIN_FUNCTION_CHARS, MIN_METHOD_LINES, Language.JAVA)],
-		]);
-
-		const files = getAllFiles(basePath);
-
+		const parsers = new Map<Language, IParser>();
 		const filenames: string[] = [];
-		files.forEach((file) => {
+
+		getAllFiles(basePath).forEach((file) => {
 			const { filename, lang } = getFileNameAndLanguage(file, basePath);
 
 			if (!lang)
@@ -170,17 +162,21 @@ export default class Parser {
 			}
 
 			filenames.push(filename);
+
+			if (!parsers.has(lang))
+				parsers.set(lang, new (ParserConstructors.get(lang))(basePath, MIN_METHOD_LINES, MIN_FUNCTION_CHARS, lang))
 			const parser = parsers.get(lang);
+
 			const data = fs.readFileSync(path.join(basePath, filename), 'utf-8');
 			parser.AddFile(filename, data);
 		});
 
 		Logger.Info(`Parsing ${filenames.length} files`, Logger.GetCallerLocation());
-		const parserResults = await Promise.all(
-			Array.from(parsers.values()).map((p) => p.ParallelParse({ threadCount: this._threadCount }))
-		);
+		const results: HashData[][] = []
+		for (const parser of Array.from(parsers.values()))
+			results.push(await parser.ParallelParse({ threadCount: this._threadCount }))
 		parsers.clear();
 
-		return { filenames, result: parserResults.flat() };
+		return { filenames, result: results.flat() };
 	}
 }

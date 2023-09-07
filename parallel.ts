@@ -69,16 +69,25 @@ class Job<T> {
 	}
 }
 
+class Message<T> {
+	public type: WorkerMessage
+	public data: T
+	constructor(type: WorkerMessage, data: T) {
+		this.type = type,
+		this.data = data
+	}
+}
+
 const enum WorkerMessage {
-	SEND_HASHES,
-	SEND_UNPARSED_BLOCK,
-	SEND_MESSAGE
+	HASHES,
+	UNPARSED_BLOCK,
+	MESSAGE
 }
 
 const WorkerMessages = [
-	WorkerMessage.SEND_HASHES,
-	WorkerMessage.SEND_UNPARSED_BLOCK,
-	WorkerMessage.SEND_MESSAGE
+	WorkerMessage.HASHES,
+	WorkerMessage.UNPARSED_BLOCK,
+	WorkerMessage.MESSAGE
 ] as const
 
 
@@ -121,7 +130,7 @@ function ShuffleArray<T>(array: T[]) {
 	}
 }
 
-function Message(msg: string) {
+function Print(msg: string) {
 	console.log(`# ${msg}`);
 }
 
@@ -134,11 +143,11 @@ async function readPartialFile(path: string, start: number, end: number): Promis
 	})
 }
 
-function createBlocks(filename: string, data: string): CodeBlock[] {
+function createBlocks(filename: string, data: string, createBlocks: boolean): CodeBlock[] {
 	let blockId = 0
 	let mutableData = Array.from(data)
 	const result: CodeBlock[] = []
-	while (mutableData.length > BLOCK_SIZE)
+	while (createBlocks && mutableData.length > BLOCK_SIZE)
 		result.push(new CodeBlock(filename, mutableData.splice(0, BLOCK_SIZE).join(''), blockId++))
 	result.push(new CodeBlock(filename, mutableData.join(''), blockId++))
 	return result
@@ -169,7 +178,7 @@ function ConcatCodeBlocks(filename: string, blocks: CodeBlock[]): File {
 	const concatenated = blocks.reduce((prevBlock, currBlock) => prevBlock.Concat(currBlock))
 	return {
 		filename,
-		codeBlocks: createBlocks(filename, concatenated.block),
+		codeBlocks: createBlocks(filename, concatenated.block, PARTIAL_FILE_PARSING),
 		size: concatenated.block.length
 	}
 }
@@ -182,10 +191,14 @@ function ConcatCodeBlocks(filename: string, blocks: CodeBlock[]): File {
  * @returns 
  */
 async function parse(job: Job<CodeBlock>, parser: IParser): Promise<[HashData[], CodeBlock | undefined]> {
-	parentPort.postMessage(WorkerMessage.SEND_MESSAGE)
-	parentPort.postMessage(`Parsing ${job.jobData.filename}`);
+	parentPort.postMessage(new Message(WorkerMessage.MESSAGE, `Parsing ${job.jobData.filename}`));
 	const hashes = parser.ParseSingle(job.jobData.filename, job.jobData.block, job.jobId % BATCH_SIZE == 0)
-	parentPort.postMessage(`Finished parsing file ${job.jobData.filename}. Number of methods found: ${hashes.length}`);
+	parentPort.postMessage(
+		new Message(
+			WorkerMessage.MESSAGE, 
+			`Finished parsing file ${job.jobData.filename}. Number of methods found: ${hashes.length}`
+		)
+	);
 
 	// substitute for actual unparsed data
 	const unparsedData = ''
@@ -213,8 +226,6 @@ class WorkerPool<TResult> {
 
 	public async Process<K>(finishCallback: (result: TResult[]) => K): Promise<K> {
 		const self = this;
-		
-		const incomingMessages = new Map<Worker, keyof typeof WorkerMessages>()
 		const unparsedBlocks = new Map<string, CodeBlock[]>()
 
 		return new Promise((resolve, reject) => {
@@ -225,38 +236,33 @@ class WorkerPool<TResult> {
 					if (self._workers.size == 0) 
 						resolve(finishCallback(self._result.flat()))
 				});
-				worker.on('message', (incoming) => {
-					if (WorkerMessages.find(validMessage => validMessage == incoming) !== undefined) {
-						incomingMessages.set(worker, incoming as keyof typeof WorkerMessages)
-						return
-					}
-
-					const currentMessage = incomingMessages.get(worker)
-					switch (currentMessage) {
-						case WorkerMessage.SEND_HASHES:
+				worker.on('message', (message) => {
+					switch (message.type) {
+						case WorkerMessage.HASHES:
 							if (self._jobs.length % BATCH_SIZE == 0 && self._jobs.length != 0)
-								Message(self._jobs.length.toString());
-							self._result.push(...incoming);
+								Print(self._jobs.length.toString());
+							self._result.push(...message.data);
+
 							worker.postMessage(self._jobs.dequeue());
 							break;
 						
-						case WorkerMessage.SEND_UNPARSED_BLOCK:
-							if (!unparsedBlocks.has(incoming.filename))
-								unparsedBlocks.set(incoming.filename, [])
-							unparsedBlocks.get(incoming.filename).push(incoming)
-							if (unparsedBlocks.get(incoming.filename).length > 1) {
-								const newBlocks = ConcatCodeBlocks(incoming.filename, unparsedBlocks.get(incoming.filename))
+						case WorkerMessage.UNPARSED_BLOCK:
+							if (!unparsedBlocks.has(message.data.filename))
+								unparsedBlocks.set(message.data.filename, [])
+							unparsedBlocks.get(message.data.filename).push(message.data)
+							if (unparsedBlocks.get(message.data.filename).length > 1) {
+								const newBlocks = ConcatCodeBlocks(message.data.fielname, unparsedBlocks.get(message.data.filename))
 								newBlocks.codeBlocks.forEach(block => this.AddJob(block))
 							}
 							break;
 
-						case WorkerMessage.SEND_MESSAGE:
-							Message(incoming)
+						case WorkerMessage.MESSAGE:
+							Print(message.data)
 							break;
 							
 					}
 				});
-				worker.postMessage(this._jobs.dequeue());
+				worker.postMessage(self._jobs.dequeue());
 			});
 		})
 	}
@@ -296,13 +302,10 @@ async function ParallelParse(data: File[], threadCount: number, basePath: string
 			parentPort.on('message', async (incoming) => {
 				if (incoming !== undefined) {
 					const [hashes, unparsedCodeBlock] = await parse(incoming, parser)
-					parentPort.postMessage(WorkerMessage.SEND_HASHES)
-					parentPort.postMessage(hashes);
+					parentPort.postMessage(new Message(WorkerMessage.HASHES, hashes));
 
-					if (unparsedCodeBlock) {
-						parentPort.postMessage(WorkerMessage.SEND_UNPARSED_BLOCK)
-						parentPort.postMessage(unparsedCodeBlock)
-					}
+					if (unparsedCodeBlock) 
+						parentPort.postMessage(new Message(WorkerMessage.UNPARSED_BLOCK, unparsedCodeBlock))
 				}
 				else {
 					parentPort.close();
