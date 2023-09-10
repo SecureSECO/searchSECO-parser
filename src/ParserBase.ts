@@ -9,41 +9,76 @@
 import HashData from './HashData';
 import { Language } from './Parser';
 import Logger from './searchSECO-logger/src/Logger';
-import { spawn } from 'child_process';
+import { fork } from 'child_process';
 import path from 'path';
 
 export const BATCH_SIZE = 10;
+export const PARALLEL_BATCH_SIZE = 100;
+export const UPDATE_BREAK_POINT = 25
+
+export class Message<TMsg, TData = undefined> {
+	public type: TMsg
+	public data: TData
+	constructor(type: TMsg, data?: TData) {
+		this.type = type,
+		this.data = data
+	}
+}
+
+export const enum ParentMessage {
+	DATA,
+	DATA_END,
+	EXIT
+}
+
+export const enum ProcessMessage {
+	PRINT_STMT = 'MESSAGE',
+	UPDATE_STMT = 'UPDATE',
+	DATA = 'DATA',
+	INPUT_REQUESTED = 'INPUT'
+}
+
+export type ParseableFile = {
+	filename: string
+	filedata: string
+}
+
+export class ProcessData {
+	public language: Language
+	public threadCount: number
+	public basePath: string
+	public files: ParseableFile[]
+	constructor(language: Language, threadCount: number, basePath: string, files: ParseableFile[]) {
+		this.language = language
+		this.threadCount = threadCount
+		this.basePath = basePath
+		this.files = files
+	}
+
+	public Slice(start: number, end: number) {
+		return new ProcessData(
+			this.language,
+			this.threadCount,
+			this.basePath,
+			this.files.slice(start, end)
+		)
+	}
+}
+
 
 /**
  * The interface each language parser must implement
  */
 export interface IParser {
-	/**
-	 * The files pending to be parsed.
-	 * @param fileName stores the name of the file
-	 * @param basePath stores the base directory path
-	 */
+
 	readonly buffer: Map<string, string>;
-
-	/**
-	 * Base path of all files
-	 */
 	readonly basePath: string;
-
 	readonly language: Language;
-	/**
-	 * Parses the files stored in the buffer.
-	 * @returns A promise which resolves to a HashData array
-	 */
+
 	Parse(options?: { batchSize: number }): Promise<HashData[]>;
 	ParallelParse(options: { threadCount: number }): Promise<HashData[]>;
 	ParseSingle(fileName: string, data: string, clearCache?: boolean): HashData[];
 
-	/**
-	 * Adds a file to the buffer.
-	 * @param fileName The fileName to store
-	 * @param basePath The base path of the root directory
-	 */
 	AddFile(fileName: string, data: string): void;
 }
 
@@ -88,7 +123,6 @@ export abstract class ParserBase implements IParser {
 		if (this.buffer.size == 0) return [];
 
 		const accumulator: HashData[] = [];
-
 		const bufferArray = Array.from(this.buffer);
 
 		const originalSize = bufferArray.length;
@@ -123,61 +157,65 @@ export abstract class ParserBase implements IParser {
 	public async ParallelParse({ threadCount }: { threadCount: number }): Promise<HashData[]> {
 		if (this.buffer.size == 0) return [];
 
+		const fileArray = Array.from(this.buffer).map(([filename, filedata]) => ({filename, filedata}))
+
 		const threads = threadCount >= this.buffer.size ? this.buffer.size : threadCount;
 		Logger.Debug(`Parsing ${this.language.toLowerCase()} with ${threads} threads`, Logger.GetCallerLocation());
 
-		const args: string[] = [];
+		const data = new ProcessData(
+			this.language,
+			threads,
+			this.basePath,
+			fileArray
+		);
 
-		args.push(this.language, threads.toString(), `${this.basePath}`);
-
-		Array.from(this.buffer).forEach(([file]) => {
-			args.push(`${file}`);
-		});
-
-		const result = (await this._spawnParallelParsers(args)).split('\n').filter((x) => x);
-		return result.map((res) => JSON.parse(res));
+		return await this.spawnParallelParser(data)
 	}
 
-	/**
-	 * Spawns a child process with the specified arguments.
-	 * @param args The command line arguments to give to the process
-	 * @returns the `stdio` string of the process. Lines from `stdio` starting with '# ' will be handled as a print statement and will not be returned.
-	 */
-	private _spawnParallelParsers(args: string[]): Promise<string> {
-		const originalSize = args.length - 3;
-		let buffer = '';
+	private spawnParallelParser(data: ProcessData): Promise<HashData[]> {
+		const originalSize = data.files.length
+		let batchStart = 0
 
-		const TARGET_PATH = path.join(__dirname, '../../../../dist/modules/searchSECO-parser/parallel.js');
-		return new Promise((resolve) => {
-			const process = spawn('node', [TARGET_PATH, ...args]);
-			process.stdout.on('data', (data: Buffer) => {
-				const dataString = data.toString();
-				if (dataString.startsWith('#')) {
-					const messages = dataString
-						.split('# ')
-						.filter((x) => x)
-						.map((x) => x.replace('\n', ''));
-					messages.forEach((msg) => {
-						if (!isNaN(Number(msg)))
-							Logger.Info(
-								`${this.name}: ${(100 - (Number(msg) / originalSize) * 100).toFixed(2)}% done`,
-								Logger.GetCallerLocation()
-							);
-						else Logger.Debug(msg, Logger.GetCallerLocation());
-					});
-				} else {
-					Logger.Info(`${this.name}: 100.00% done`, Logger.GetCallerLocation());
-					buffer = dataString;
+		return new Promise((resolve, reject) => {
+			const process = fork(path.join(__dirname, '../parallel.js'));
+
+			const batches: ProcessData[] = []
+			while (batchStart < originalSize) 
+				batches.push(data.Slice(batchStart, batchStart += PARALLEL_BATCH_SIZE))
+
+			process.on('message', (msg: Message<ProcessMessage, any>) => {
+				switch (msg.type) {
+					case ProcessMessage.PRINT_STMT:
+						Logger.Debug(msg.data, Logger.GetCallerLocation())
+						break;
+
+					case ProcessMessage.UPDATE_STMT:
+						Logger.Info(
+							`${this.name}: ${((msg.data / originalSize) * 100).toFixed(2)}% done`,
+							Logger.GetCallerLocation()
+						);
+						break;
+
+					case ProcessMessage.DATA:
+						Logger.Info(`${this.name}: 100.00% done`, Logger.GetCallerLocation());
+						process.send(new Message(ParentMessage.EXIT))
+						resolve(msg.data)
+						break;
+
+					case ProcessMessage.INPUT_REQUESTED:
+						if (batches.length == 0)
+							process.send(new Message(ParentMessage.DATA_END))
+						else process.send(new Message(ParentMessage.DATA, batches.pop()))
+						break
 				}
-			});
-
-			process.on('close', () => {
-				resolve(buffer);
-			});
+			})
 
 			process.on('error', (err) => {
-				console.log(err);
+				Logger.Error(err.toString(), Logger.GetCallerLocation());
+				reject(err)
 			});
+
+			process.send(new Message(ParentMessage.DATA, batches.pop()))
 		});
 	}
 
