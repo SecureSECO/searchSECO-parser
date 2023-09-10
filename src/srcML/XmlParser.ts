@@ -33,7 +33,7 @@ export default class XMLParser extends ParserBase {
 	private _currentFile = 0;
 
 	constructor(basePath: string, minMethodChars = 0, minMethodLines = 0, language: Language) {
-		super(basePath, 'XML Parser', language);
+		super(basePath, `${language} Parser`, language);
 		this._language = language;
 		this._minMethodChars = minMethodChars;
 		this._minMethodLines = minMethodLines;

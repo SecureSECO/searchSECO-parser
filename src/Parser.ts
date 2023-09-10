@@ -18,6 +18,7 @@ import { execSync } from 'child_process'
 
 export enum XMLSupportedLanguage {
 	CPP = 'C++',
+	C = 'C',
 	CSHARP = 'C#',
 	JAVA = 'Java',
 }
@@ -42,8 +43,6 @@ const EXCLUDE_PATTERNS = [
 	'generated',
 	'backup',
 	'examples',
-	'.min.',
-	'-min.',
 ];
 
 /**
@@ -79,13 +78,15 @@ export function getAllFiles(dir: string): string[] {
  */
 function getFileNameAndLanguage(filepath: string, basePath: string): { filename: string; lang: Language | undefined } {
 	const filename = filepath.replace(basePath, '.').replace(/\\|\\\\/g, '/');
-	switch (filename?.split('.').pop()?.toLowerCase()) {
+	switch (filename?.split('.').pop().toLowerCase()) {
 		case 'py':
 			return { filename, lang: Language.PYTHON };
 		case 'js':
 			return { filename, lang: Language.JS };
 		case 'cpp':
 			return { filename, lang: Language.CPP };
+		case 'c':
+			return { filename, lang: Language.C }
 		case 'cs':
 			return { filename, lang: Language.CSHARP };
 		case 'java':
@@ -97,8 +98,8 @@ function getFileNameAndLanguage(filepath: string, basePath: string): { filename:
 
 function LanguageSupported(lang: Language): boolean {
 	if (Object.keys(XMLSupportedLanguage).includes(lang)) {
-		const stdout = execSync('srcml --help')
-		const srcml = stdout.toString().substring(4)
+		const stdout = execSync('srcml --version')
+		const srcml = stdout.toString().substring(0, 5)
 		return srcml === 'srcml'
 	}
 	return false
@@ -110,6 +111,7 @@ export const ParserConstructors = new Map<Language, ParserConstructor<ParserBase
 	[Language.JS, JavascriptParser],
 	[Language.PYTHON, PythonParser],
 	[Language.CPP, XMLParser],
+	[Language.C, XMLParser],
 	[Language.JAVA, XMLParser],
 	[Language.CSHARP, XMLParser],
 ]);
@@ -138,18 +140,10 @@ export default class Parser {
 		basePath: string,
 		data?: Map<string, string>
 	): Promise<{ filenames: string[]; result: HashData[] }> {
-		const parsers = new Map<Language, IParser>([
-			[Language.JS, new JavascriptParser(basePath, MIN_METHOD_LINES, MIN_FUNCTION_CHARS)],
-			[Language.PYTHON, new PythonParser(basePath, MIN_METHOD_LINES, MIN_FUNCTION_CHARS)],
-			[Language.CPP, new XMLParser(basePath, MIN_FUNCTION_CHARS, MIN_METHOD_LINES, Language.CPP)],
-			[Language.CSHARP, new XMLParser(basePath, MIN_FUNCTION_CHARS, MIN_METHOD_LINES, Language.CSHARP)],
-			[Language.JAVA, new XMLParser(basePath, MIN_FUNCTION_CHARS, MIN_METHOD_LINES, Language.JAVA)],
-		]);
-
-		const files = getAllFiles(basePath);
-
+		const parsers = new Map<Language, IParser>();
 		const filenames: string[] = [];
-		files.forEach((file) => {
+
+		getAllFiles(basePath).forEach((file) => {
 			const { filename, lang } = getFileNameAndLanguage(file, basePath);
 
 			if (!lang)
@@ -159,28 +153,37 @@ export default class Parser {
 				if (!this._srcmlSupported)
 					return
 				if (!this._srcmlChecked && !LanguageSupported(lang)) {
-					this._srcmlChecked = true
 					Logger.Error(
 						`Parsing of file ${filename} failed because srcML is not installed.\n Please install the CLI (https://www.srcml.org/#download).\n Future files of this language type will be ignored.
 						`, Logger.GetCallerLocation()
 					)
 					this._srcmlSupported = false
-					return;
 				}
+				this._srcmlChecked = true
 			}
 
 			filenames.push(filename);
+
+			if (!parsers.has(lang))
+				parsers.set(lang, new (ParserConstructors.get(lang))(basePath, MIN_METHOD_LINES, MIN_FUNCTION_CHARS, lang))
 			const parser = parsers.get(lang);
+
 			const data = fs.readFileSync(path.join(basePath, filename), 'utf-8');
 			parser.AddFile(filename, data);
 		});
 
 		Logger.Info(`Parsing ${filenames.length} files`, Logger.GetCallerLocation());
-		const parserResults = await Promise.all(
-			Array.from(parsers.values()).map((p) => p.ParallelParse({ threadCount: this._threadCount }))
-		);
+
+		const parserArray = Array.from(parsers.values())
+
+		const bufferSizes = parserArray.reduce((prev, curr) => prev + curr.buffer.size, 0)
+
+		// allocate threads based on the file fraction in the buffer relative to the total file size
+		const results =  await Promise.all(parserArray.map(p => p.ParallelParse({ 
+			threadCount: this._threadCount
+		})))
 		parsers.clear();
 
-		return { filenames, result: parserResults.flat() };
+		return { filenames, result: results.flat() };
 	}
 }

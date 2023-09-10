@@ -6,49 +6,92 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { MIN_FUNCTION_CHARS, MIN_METHOD_LINES, ParserConstructors } from './src/Parser';
+import { 
+	Language, 
+	MIN_FUNCTION_CHARS, 
+	MIN_METHOD_LINES,
+	 ParserConstructors 
+} from './src/Parser';
 import HashData from './src/HashData';
-import { Worker, isMainThread, parentPort, workerData } from 'worker_threads';
+import { 
+	Worker, 
+	isMainThread, 
+	parentPort, 
+	workerData } 
+from 'worker_threads';
 import fs from 'fs';
-import path from 'path';
-import { IParser, BATCH_SIZE } from './src/ParserBase';
+import { 
+	IParser, 
+	ProcessMessage,
+	 ProcessData, 
+	 ParentMessage, 
+	 Message, 
+	 UPDATE_BREAK_POINT,
+	 ParseableFile} 
+from './src/ParserBase';
+import EventEmitter from 'events'
 
-type Item = [string, string];
-type Job = {
-	job: Item;
-	id: number;
-};
-type Batch = Item[];
 
-/* Randomize array in-place using Durstenfeld shuffle algorithm */
-function shuffleArray<T>(array: T[]) {
-	for (let i = array.length - 1; i > 0; i--) {
-		const j = Math.floor(Math.random() * (i + 1));
-		const temp = array[i];
-		array[i] = array[j];
-		array[j] = temp;
+// Arbitrary block size of 15 kB
+// note: cannot exceed 64 KiB
+const BLOCK_SIZE = 15_360 
+const PARTIAL_FILE_PARSING = false
+
+type File = {
+	filename: string,
+	size: number
+	codeBlocks: CodeBlock[]
+}
+
+class CodeBlock {
+	public readonly filename: string
+	public block: string
+	public blockId: number
+	constructor(filename: string, block: string, blockId: number) {
+		this.filename = filename
+		this.block = block
+		this.blockId = blockId
+	}
+
+	public Concat(other: CodeBlock): CodeBlock {
+		// can only concat blocks of the same file
+		if (this.filename !== other.filename)
+			return this
+
+		if (this.blockId > other.blockId)
+			this.block = other.block + this.block
+		else this.block += other.block
+		this.blockId = Math.min(this.blockId, other.blockId)
+		return this
 	}
 }
 
-function Message(msg: string) {
-	console.log(`# ${msg}`);
+class Job<T> {
+	public readonly jobData: T
+	public readonly jobId: number
+	private static _currentJobId: number = 0
+	private constructor(jobData: T, jobId: number) {
+		this.jobData = jobData
+		this.jobId = jobId
+	}
+
+	public static Create<T>(data: T): Job<T> {
+		return new this(data, this._currentJobId++)
+	}
+
+	public get JSON(): string {
+		return JSON.stringify({
+			jobData: this.jobData,
+			jobId: this.jobId
+		})
+	}
 }
 
-/**
- * The parse function each individual worker thread uses
- * @param batch The batch to process
- * @param basePath The base path of the directory to parse
- * @param lang The target language
- * @returns A HashData array containing function information
- */
-function parse({ job: [filename, data], id }: Job, parser: IParser): HashData[] {
-	const hashes: HashData[] = [];
-
-	parentPort.postMessage(`Parsing ${filename}`);
-	hashes.push(...parser.ParseSingle(filename, data, id % BATCH_SIZE == 0));
-	parentPort.postMessage(`Finished parsing file ${filename}. Number of methods found: ${hashes.length}`);
-
-	return hashes;
+const enum WorkerMessage {
+	HASHES,
+	UNPARSED_BLOCK,
+	MESSAGE,
+	IDLE
 }
 
 class Queue<T> {
@@ -63,6 +106,9 @@ class Queue<T> {
 
 	dequeue(): T | undefined {
 		const item = this._elements[this._head];
+		if (!item)
+			return undefined
+
 		delete this._elements[this._head];
 		this._head++;
 		return item;
@@ -81,100 +127,253 @@ class Queue<T> {
 	}
 }
 
-class WorkerPool {
-	private _workers: Set<Worker>;
-	private _jobs: Queue<Job>;
-	private _result: HashData[][];
+function Print(type: ProcessMessage, msg: string | number) {
+	process.send ? process.send(new Message(type, msg)) : console.log(`${type} | ${msg}`)
+}
 
-	constructor(threadCount: number, basePath: string, lang: string) {
-		this._workers = new Set<Worker>();
-		this._jobs = new Queue<Job>();
-		this._result = [];
+async function readFileBlock(filename: string, fpath: string, start: number, end: number): Promise<string> {
+	return await new Promise((resolve) => {
+		const stream = fs.createReadStream(fpath, { start, end })
+		const chunks: Buffer[] = []
+		stream.on('data', chunk => chunks.push(Buffer.from(chunk)))
+		stream.on('end', () => {
+			stream.destroy()
+			resolve(Buffer.concat(chunks).toString('utf-8'))
+		})
+	})
+}
 
-		// initialize worker pool
-		for (let i = 0; i < threadCount; i++) {
-			const worker = new Worker(__filename, { workerData: { lang, basePath } });
-			this._workers.add(worker);
-		}
-	}
+function createBlocks(filename: string, data: string): CodeBlock[] {
+	let blockId = 0
+	let mutableData = Array.from(data)
 
-	public AddJobs(jobs: Item[]) {
-		// shuffle jobs for a (hopefully) even load distribution
-		shuffleArray(jobs);
-		jobs.forEach((job, idx) => {
-			this._jobs.enqueue({ job, id: idx });
-		});
-	}
+	const result: CodeBlock[] = []
+	while (PARTIAL_FILE_PARSING && mutableData.length > BLOCK_SIZE)
+		result.push(new CodeBlock(filename, mutableData.splice(0, BLOCK_SIZE).join(''), blockId++))
+	result.push(new CodeBlock(filename, mutableData.join(''), blockId++))
+	return result
+}	
 
-	public Process(callback: (result: HashData[]) => void) {
-		const self = this;
-		self._workers.forEach((worker) => {
-			worker.on('error', (err) => {
-				throw err;
-			});
-			worker.on('exit', () => {
-				self._workers.delete(worker);
-				if (self._workers.size == 0) callback(self._result.flat());
-			});
-			worker.on('message', (incoming) => {
-				if (typeof incoming !== 'object') Message(incoming);
-				else {
-					if (self._jobs.length % BATCH_SIZE == 0 && self._jobs.length != 0) {
-						Message(self._jobs.length.toString());
-					}
-					self._result.push(...incoming);
-					worker.postMessage(self._jobs.dequeue());
-				}
-			});
-			worker.postMessage(this._jobs.dequeue());
-		});
+function readFileData(filename: string, data: string): File {
+	return {
+		filename,
+		size: data.length,
+		codeBlocks: createBlocks(filename, data)
 	}
 }
+
+function ConcatCodeBlocks(filename: string, blocks: CodeBlock[]): File {
+	blocks.sort((a: CodeBlock, b: CodeBlock) => a.blockId - b.blockId)
+	const concatenated = blocks.reduce((prevBlock, currBlock) => prevBlock.Concat(currBlock))
+	return {
+		filename,
+		codeBlocks: createBlocks(filename, concatenated.block),
+		size: concatenated.block.length
+	}
+}
+
 
 /**
- * Parses data in parallel using multithreading. Outputs the result to `stdio`.
- * @param data The file names to process
- * @param threadCount The number of worker threads to use
- * @param basePath The base path of the directory to parse
- * @param lang The target language
+ * Parses (partial) file data.
+ * @param job The job object
+ * @param parser 
+ * @returns 
  */
-async function ParallelParse(
-	data: [string, string][],
-	threadCount: number,
-	basePath: string,
-	lang: string
-): Promise<void> {
-	if (isMainThread) {
-		const workerPool = new WorkerPool(threadCount, basePath, lang);
-		workerPool.AddJobs(data);
-		workerPool.Process((result: HashData[]) => {
-			console.log(result.map((x) => JSON.stringify(x)).join('\n'));
-		});
-	} else {
-		const { lang, basePath } = workerData;
+async function parse(job: Job<CodeBlock>, parser: IParser): Promise<[HashData[], CodeBlock | undefined]> {
+	parentPort.postMessage(new Message(WorkerMessage.MESSAGE, `Parsing ${job.jobData.filename}`));
+	const hashes = parser.ParseSingle(job.jobData.filename, job.jobData.block, job.jobId % UPDATE_BREAK_POINT == 0)
+	parentPort.postMessage(
+		new Message(
+			WorkerMessage.MESSAGE, 
+			`Finished parsing file ${job.jobData.filename}. Number of methods found: ${hashes.length}`
+		)
+	);
 
-		let parser: IParser;
-		if (!parser) parser = new (ParserConstructors.get(lang))(basePath, MIN_METHOD_LINES, MIN_FUNCTION_CHARS, lang);
+	// substitute for actual unparsed data
+	const unparsedData = ''
+	const unparsedCodeBlock = unparsedData ? new CodeBlock(job.jobData.filename, unparsedData, job.jobData.blockId) : undefined
+	return [hashes, unparsedCodeBlock];
+}
 
-		parentPort.on('message', (job) => {
-			if (job !== undefined) parentPort.postMessage(parse(job, parser));
-			else {
-				parentPort.close();
-			}
-		});
+class WorkerPool<TResult> extends EventEmitter {
+	private _workers: Set<Worker>;
+	private _jobs: Queue<Job<CodeBlock>>;
+	private _unparsedBlocks: Map<string, CodeBlock[]>
+	private _handledBreakpoint: number = 0
+	private _totalJobs: number = 0
+	private _processed: number = 0
+	private _processing: Set<string>
+	private _result: TResult[][];
+	private static _isClosed: boolean = false
+
+	constructor(genericData: any, threadCount: number) {
+		super()
+
+		this._workers = new Set();
+		this._jobs = new Queue();
+		this._unparsedBlocks = new Map()
+		this._processing = new Set()
+
+		this._result = [];
+
+		for (let i = 0; i < threadCount; i++) 
+			this._workers.add(new Worker(__filename, { workerData: genericData }));
+
+		this.initialize()
+	}
+
+	public AddJob(data: CodeBlock) {
+		this._jobs.enqueue(Job.Create(data));
+		this._totalJobs++
+	}
+
+	public static Close() {
+		this._isClosed = true
+	}
+
+	static get IsClosed() {
+		return this._isClosed
+	}
+
+	private initialize() {
+		const self = this
+
+		self.on('start', () => {
+			self._workers.forEach(worker => {
+				if (self._jobs.length > 0) {
+					const job = self._jobs.dequeue()
+					self._processing.add(job.jobData.filename)
+					worker.postMessage(job);
+				}
+			})
+		})
+
+		
+		self._workers.forEach((worker) => {
+			worker.on('error', err => { throw err });
+			worker.on('exit', () => {
+				self._workers.delete(worker);
+				if (self._workers.size == 0)
+					self.emit('done', self._result.flat())
+			});
+			worker.on('message', (message) => {
+				switch (message.type) {
+					case WorkerMessage.HASHES:
+
+						const { filename, hashes } = message.data
+						self._result.push(hashes);
+
+						self._processed++
+						self._processing.delete(filename)
+
+						if (self._processed % UPDATE_BREAK_POINT == 0 && self._handledBreakpoint !== self._processed) {
+							Print(ProcessMessage.UPDATE_STMT, self._processed);
+							self._handledBreakpoint = self._processed
+						}
+						
+						const job = this._jobs.dequeue()
+						if (job) self._processing.add(job.jobData.filename)
+						worker.postMessage(job);
+						break;
+					
+					case WorkerMessage.UNPARSED_BLOCK:
+						if (!self._unparsedBlocks.has(message.data.filename))
+							self._unparsedBlocks.set(message.data.filename, [])
+						self._unparsedBlocks.get(message.data.filename).push(message.data)
+						if (self._unparsedBlocks.get(message.data.filename).length > 1) {
+							const newBlocks = ConcatCodeBlocks(message.data.fielname, self._unparsedBlocks.get(message.data.filename))
+							newBlocks.codeBlocks.forEach(block => this.AddJob(block))
+						}
+						break;
+					
+					case WorkerMessage.IDLE:
+						if (WorkerPool.IsClosed && self._jobs.length == 0 && self._processing.size == 0)
+							worker.emit('exit')
+						else 
+							self.emit('empty')
+						worker.postMessage(self._jobs.dequeue())
+						break
+
+					case WorkerMessage.MESSAGE:
+						Print(ProcessMessage.PRINT_STMT, message.data)
+						break;
+						
+				}
+			});
+		})
+	}
+
+	public async Process<K = TResult[]>(finishCallback?: (result: TResult[]) => K): Promise<K> {
+		const self = this
+		return new Promise((resolve) => {
+			self.on('done', () => {
+				if (finishCallback) resolve(finishCallback(self._result.flat()))
+				else resolve(self._result.flat() as K)
+			})
+		})
 	}
 }
 
+
 (async () => {
-	const language = process.argv[2];
-	const threadCount = +process.argv[3];
-	const basePath = process.argv[4];
-	const filenames = process.argv.slice(5);
+	if (isMainThread) {
+		let workerPool: WorkerPool<HashData>
+		let language: Language
+		let basePath: string
+		let threadCount: number
+		let dataSent: boolean = false
 
-	const data: [string, string][] = filenames.map((filename) => [
-		filename,
-		fs.readFileSync(path.join(basePath, filename), 'utf-8'),
-	]);
+		process.on('message', async (incoming: Message<ParentMessage, ProcessData>) => {
+			switch (incoming.type) {
+				case ParentMessage.DATA:
+					let files: ParseableFile[]
+					({ language, threadCount, basePath, files } = incoming.data)
 
-	ParallelParse(data, threadCount, basePath, language);
+					if (!workerPool) {
+						workerPool = new WorkerPool<HashData>({ basePath, language }, threadCount)
+						workerPool.on('empty', () => {
+							if (!WorkerPool.IsClosed) 
+								process.send(new Message(ProcessMessage.INPUT_REQUESTED))
+						})
+						workerPool.on('done', (results) => {
+							if (!dataSent) process.send(new Message(ProcessMessage.DATA, results))
+							dataSent = true
+						})
+					}
+
+					const data = files.map(({ filename, filedata }) => readFileData(filename, filedata))
+					data.map(d => d.codeBlocks).flat().forEach(c => workerPool.AddJob(c))
+					workerPool.emit('start')
+					break
+
+				case ParentMessage.DATA_END:
+					WorkerPool.Close()
+					break;
+
+				case ParentMessage.EXIT:
+					process.exit(0)
+			}
+		})
+
+		
+
+	} else {
+		const { language, basePath } = workerData as { language: Language, basePath: string };
+
+		let parser: IParser;
+		if (!parser) 
+			parser = new (ParserConstructors.get(language))(basePath, MIN_METHOD_LINES, MIN_FUNCTION_CHARS, language);
+
+		parentPort.on('message', async (incoming: Job<CodeBlock> |  undefined) => {
+			if (!incoming) {
+				parentPort.postMessage(new Message(WorkerMessage.IDLE))
+				return
+			}
+
+			const [hashes, unparsedCodeBlock] = await parse(incoming, parser)
+			if (unparsedCodeBlock) 
+				parentPort.postMessage(new Message(WorkerMessage.UNPARSED_BLOCK, unparsedCodeBlock))
+			parentPort.postMessage(new Message(WorkerMessage.HASHES, { filename: incoming.jobData.filename, hashes}));
+		});
+	}
 })();
