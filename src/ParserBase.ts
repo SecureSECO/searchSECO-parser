@@ -14,63 +14,55 @@ import path from 'path';
 
 export const BATCH_SIZE = 10;
 export const PARALLEL_BATCH_SIZE = 100;
-export const UPDATE_BREAK_POINT = 25
+export const UPDATE_BREAK_POINT = 25;
 
 export class Message<TMsg, TData = undefined> {
-	public type: TMsg
-	public data: TData
+	public type: TMsg;
+	public data: TData;
 	constructor(type: TMsg, data?: TData) {
-		this.type = type,
-		this.data = data
+		(this.type = type), (this.data = data);
 	}
 }
 
 export const enum ParentMessage {
 	DATA,
 	DATA_END,
-	EXIT
+	EXIT,
 }
 
 export const enum ProcessMessage {
 	PRINT_STMT = 'MESSAGE',
 	UPDATE_STMT = 'UPDATE',
 	DATA = 'DATA',
-	INPUT_REQUESTED = 'INPUT'
+	INPUT_REQUESTED = 'INPUT',
 }
 
 export type ParseableFile = {
-	filename: string
-	filedata: string
-}
+	filename: string;
+	filedata: string;
+};
 
 export class ProcessData {
-	public language: Language
-	public threadCount: number
-	public basePath: string
-	public files: ParseableFile[]
+	public language: Language;
+	public threadCount: number;
+	public basePath: string;
+	public files: ParseableFile[];
 	constructor(language: Language, threadCount: number, basePath: string, files: ParseableFile[]) {
-		this.language = language
-		this.threadCount = threadCount
-		this.basePath = basePath
-		this.files = files
+		this.language = language;
+		this.threadCount = threadCount;
+		this.basePath = basePath;
+		this.files = files;
 	}
 
 	public Slice(start: number, end: number) {
-		return new ProcessData(
-			this.language,
-			this.threadCount,
-			this.basePath,
-			this.files.slice(start, end)
-		)
+		return new ProcessData(this.language, this.threadCount, this.basePath, this.files.slice(start, end));
 	}
 }
-
 
 /**
  * The interface each language parser must implement
  */
 export interface IParser {
-
 	readonly buffer: Map<string, string>;
 	readonly basePath: string;
 	readonly language: Language;
@@ -157,72 +149,58 @@ export abstract class ParserBase implements IParser {
 	public async ParallelParse({ threadCount }: { threadCount: number }): Promise<HashData[]> {
 		if (this.buffer.size == 0) return [];
 
-		const fileArray = Array.from(this.buffer).map(([filename, filedata]) => ({filename, filedata}))
+		const fileArray = Array.from(this.buffer).map(([filename, filedata]) => ({ filename, filedata }));
 
 		const threads = threadCount >= this.buffer.size ? this.buffer.size : threadCount;
 		Logger.Debug(`Parsing ${this.language.toLowerCase()} with ${threads} threads`, Logger.GetCallerLocation());
 
-		const data = new ProcessData(
-			this.language,
-			threads,
-			this.basePath,
-			fileArray
-		);
+		const data = new ProcessData(this.language, threads, this.basePath, fileArray);
 
-		return await this.spawnParallelParser(data)
+		return await this.spawnParallelParser(data);
 	}
 
 	private spawnParallelParser(data: ProcessData): Promise<HashData[]> {
-		const originalSize = data.files.length
-		let batchStart = 0
+		const originalSize = data.files.length;
+		let batchStart = 0;
 
 		return new Promise((resolve, reject) => {
 			const process = fork(path.join(__dirname, '../parallel.js'));
 
-			const batches: ProcessData[] = []
-			while (batchStart < originalSize) 
-				batches.push(data.Slice(batchStart, batchStart += PARALLEL_BATCH_SIZE))
+			const batches: ProcessData[] = [];
+			while (batchStart < originalSize) batches.push(data.Slice(batchStart, (batchStart += PARALLEL_BATCH_SIZE)));
 
-			process.on('message', (msg: Message<ProcessMessage, any>) => {
+			process.on('message', (msg: Message<ProcessMessage, unknown>) => {
 				switch (msg.type) {
 					case ProcessMessage.PRINT_STMT:
-						Logger.Debug(msg.data, Logger.GetCallerLocation())
+						Logger.Debug(msg.data as string, Logger.GetCallerLocation());
 						break;
 
 					case ProcessMessage.UPDATE_STMT:
 						Logger.Info(
-							`${this.name}: ${((msg.data / originalSize) * 100).toFixed(2)}% done`,
+							`${this.name}: ${(((msg.data as number) / originalSize) * 100).toFixed(2)}% done`,
 							Logger.GetCallerLocation()
 						);
 						break;
 
 					case ProcessMessage.DATA:
 						Logger.Info(`${this.name}: 100.00% done`, Logger.GetCallerLocation());
-						process.send(new Message(ParentMessage.EXIT))
-						resolve(msg.data)
+						process.send(new Message(ParentMessage.EXIT));
+						resolve(msg.data as HashData[]);
 						break;
 
 					case ProcessMessage.INPUT_REQUESTED:
-						if (batches.length == 0)
-							process.send(new Message(ParentMessage.DATA_END))
-						else process.send(new Message(ParentMessage.DATA, batches.pop()))
-						break
+						if (batches.length == 0) process.send(new Message(ParentMessage.DATA_END));
+						else process.send(new Message(ParentMessage.DATA, batches.pop()));
+						break;
 				}
-			})
+			});
 
 			process.on('error', (err) => {
 				Logger.Error(err.toString(), Logger.GetCallerLocation());
-				reject(err)
+				reject(err);
 			});
 
-			process.send(new Message(ParentMessage.DATA, batches.pop()))
+			process.send(new Message(ParentMessage.DATA, batches.pop()));
 		});
-	}
-
-	/**
-	 * Clears the file buffer
-	 */
-	private clear(): void {
-		this.buffer.clear();
 	}
 }

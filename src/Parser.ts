@@ -14,7 +14,7 @@ import * as fs from 'fs';
 import path from 'path';
 import XMLParser from './srcML/XmlParser';
 import Logger, { Verbosity } from './searchSECO-logger/src/Logger';
-import { execSync } from 'child_process'
+import { execSync } from 'child_process';
 
 export enum XMLSupportedLanguage {
 	CPP = 'C++',
@@ -86,7 +86,7 @@ function getFileNameAndLanguage(filepath: string, basePath: string): { filename:
 		case 'cpp':
 			return { filename, lang: Language.CPP };
 		case 'c':
-			return { filename, lang: Language.C }
+			return { filename, lang: Language.C };
 		case 'cs':
 			return { filename, lang: Language.CSHARP };
 		case 'java':
@@ -98,11 +98,15 @@ function getFileNameAndLanguage(filepath: string, basePath: string): { filename:
 
 function LanguageSupported(lang: Language): boolean {
 	if (Object.keys(XMLSupportedLanguage).includes(lang)) {
-		const stdout = execSync('srcml --version')
-		const srcml = stdout.toString().substring(0, 5)
-		return srcml === 'srcml'
+		try {
+			const stdout = execSync('srcml --version');
+			const srcml = stdout.toString().substring(0, 5);
+			return srcml === 'srcml';
+		} catch {
+			return false;
+		}
 	}
-	return false
+	return false;
 }
 
 export const MIN_FUNCTION_CHARS = 0;
@@ -122,8 +126,8 @@ export const PARSER_VERSION = 1;
  */
 export default class Parser {
 	private _threadCount: number;
-	private _srcmlChecked: boolean = false
-	private _srcmlSupported: boolean = true
+	private _srcmlChecked = false;
+	private _srcmlSupported = true;
 	constructor(verbosity: Verbosity, threadCount: number) {
 		Logger.SetModule('parser');
 		Logger.SetVerbosity(verbosity);
@@ -136,36 +140,32 @@ export default class Parser {
 	 * @returns A tuple containing the list of filenames parsed, and a Map. The keys of this map are the file names,
 	 * and the values are HashData objects containing data about the parsed methods.
 	 */
-	public async ParseFiles(
-		basePath: string,
-		data?: Map<string, string>
-	): Promise<{ filenames: string[]; result: HashData[] }> {
+	public async ParseFiles(basePath: string): Promise<{ filenames: string[]; result: HashData[] }> {
 		const parsers = new Map<Language, IParser>();
 		const filenames: string[] = [];
 
 		getAllFiles(basePath).forEach((file) => {
 			const { filename, lang } = getFileNameAndLanguage(file, basePath);
 
-			if (!lang)
-				return
+			if (!lang) return;
 
 			if (Object.keys(XMLSupportedLanguage).includes(lang)) {
-				if (!this._srcmlSupported)
-					return
+				if (!this._srcmlSupported) return;
 				if (!this._srcmlChecked && !LanguageSupported(lang)) {
 					Logger.Error(
 						`Parsing of file ${filename} failed because srcML is not installed.\n Please install the CLI (https://www.srcml.org/#download).\n Future files of this language type will be ignored.
-						`, Logger.GetCallerLocation()
-					)
-					this._srcmlSupported = false
+						`,
+						Logger.GetCallerLocation()
+					);
+					this._srcmlSupported = false;
 				}
-				this._srcmlChecked = true
+				this._srcmlChecked = true;
 			}
 
 			filenames.push(filename);
 
 			if (!parsers.has(lang))
-				parsers.set(lang, new (ParserConstructors.get(lang))(basePath, MIN_METHOD_LINES, MIN_FUNCTION_CHARS, lang))
+				parsers.set(lang, new (ParserConstructors.get(lang))(basePath, MIN_METHOD_LINES, MIN_FUNCTION_CHARS, lang));
 			const parser = parsers.get(lang);
 
 			const data = fs.readFileSync(path.join(basePath, filename), 'utf-8');
@@ -174,14 +174,18 @@ export default class Parser {
 
 		Logger.Info(`Parsing ${filenames.length} files`, Logger.GetCallerLocation());
 
-		const parserArray = Array.from(parsers.values())
+		const parserArray = Array.from(parsers.values());
 
-		const bufferSizes = parserArray.reduce((prev, curr) => prev + curr.buffer.size, 0)
+		// const bufferSizes = parserArray.reduce((prev, curr) => prev + curr.buffer.size, 0);
 
 		// allocate threads based on the file fraction in the buffer relative to the total file size
-		const results =  await Promise.all(parserArray.map(p => p.ParallelParse({ 
-			threadCount: this._threadCount
-		})))
+		const results = await Promise.all(
+			parserArray.map((p) =>
+				p.ParallelParse({
+					threadCount: this._threadCount,
+				})
+			)
+		);
 		parsers.clear();
 
 		return { filenames, result: results.flat() };
