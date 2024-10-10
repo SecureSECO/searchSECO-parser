@@ -16,6 +16,11 @@ import JSListener from './lib/JavaScriptParserListenerDerived';
 import Logger from '../../searchSECO-logger/src/Logger';
 import { Language } from '../../Parser';
 
+// The cutoff value for 'short' function bodies can be different for
+// the Javascript parser in comparison to other parsers.
+// This factor is the factor relative to the srcML parser.
+const FunctionCharFactor: number = 0.8;
+
 /**
  * The implementation of a Javascript parser. This parser inherits from `ParserBase`.
  */
@@ -26,7 +31,7 @@ export default class JavascriptParser extends ParserBase {
 	constructor(basePath: string, minMethodSize: number, minMethodChars: number) {
 		super(basePath, 'Javascript Parser', Language.JS);
 		this._minMethodSize = minMethodSize;
-		this._minMethodChars = minMethodChars;
+		this._minMethodChars = FunctionCharFactor*minMethodChars;
 	}
 
 	public override ParseSingle(fileName: string, data: string, clearCache: boolean): HashData[] {

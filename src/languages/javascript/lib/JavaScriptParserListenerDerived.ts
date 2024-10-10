@@ -1,6 +1,6 @@
 /**
  * This program has been developed by students from the bachelor Computer Science at Utrecht University within the Software Project course.
- * © Copyright Utrecht University (Department of Information and Computing Sciences)
+ * ï¿½ Copyright Utrecht University (Department of Information and Computing Sciences)
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,12 +10,13 @@ import { JavaScriptParserListener } from "./JavaScriptParserListener";
 import md5 from 'md5'
 import HashData from "../../../HashData";
 import { TokenStreamRewriter } from "antlr4ts";
-import { 
-    AnonymousFunctionDeclContext, 
-    FunctionBodyContext, 
-    FunctionDeclarationContext, 
-    IdentifierContext, 
-    ParseFunctionBodyContext} 
+import {
+    AnonymousFunctionDeclContext,
+    FunctionBodyContext,
+    FunctionDeclarationContext,
+    IdentifierContext,
+    ParseFunctionBodyContext
+}
     from "./JavaScriptParser";
 
 export default class JSListener implements JavaScriptParserListener {
@@ -63,13 +64,13 @@ export default class JSListener implements JavaScriptParserListener {
 
         const start = this.starts.pop() || 0
         const stop = ctx.stop?.line || 0
-
-        if (stop - start >= this.minMethodSize)
+        //console.log(`Method ${functionName}\t${functionBody.length}\t${functionBody}`);
+        if (functionBody.length >= this.minFunctionChars && stop - start >= this.minMethodSize)
             this.output.push(new HashData(md5(functionBody), this.filename, functionName, start, stop))
 
         this.tsrs.pop()
         if (this.tsrs.length > 0) {
-            this.tsrs[this.tsrs.length-1].replace(ctx.start.tokenIndex, ctx.stop?.tokenIndex||0, "var")
+            this.tsrs[this.tsrs.length - 1].replace(ctx.start.tokenIndex, ctx.stop?.tokenIndex || 0, "var")
         }
     }
 
@@ -85,19 +86,19 @@ export default class JSListener implements JavaScriptParserListener {
 
     exitFunctionDeclaration(ctx: FunctionDeclarationContext) {
         const functionName = this.functionNames.pop() || ''
-        const functionBody = (this.functionBodies.pop() ||'').replace(/\s+/gm, '')
+        const functionBody = (this.functionBodies.pop() || '').replace(/\s+/gm, '')
 
         const start = this.starts.pop() || 0
         const stop = ctx.stop?.line || 0
-
-        if (stop - start >= this.minMethodSize) {
+        //console.log(`Method ${functionName}\t${functionBody.length}\t${functionBody}`);
+        if (functionBody.length >= this.minFunctionChars && stop - start >= this.minMethodSize) {
             const hashData = new HashData(md5(functionBody), this.filename, functionName, start, stop)
             this.output.push(hashData)
         }
 
         this.tsrs.pop()
         if (this.tsrs.length > 0) {
-            this.tsrs[this.tsrs.length-1].replace(ctx.start.tokenIndex, ctx.stop?.tokenIndex || 0, "var")
+            this.tsrs[this.tsrs.length - 1].replace(ctx.start.tokenIndex, ctx.stop?.tokenIndex || 0, "var")
         }
     }
 
@@ -108,28 +109,28 @@ export default class JSListener implements JavaScriptParserListener {
     exitParseFunctionBody(ctx: ParseFunctionBodyContext) {
         this.functionBodies.pop()
 
-        const tsr = this.tsrs[this.tsrs.length-1]
+        const tsr = this.tsrs[this.tsrs.length - 1]
         this.functionBodies.push(tsr.getText(ctx.sourceInterval))
     }
 
     enterIdentifier(ctx: IdentifierContext) {
         const name = this.functionNames.pop() || ''
         if (this.inNonAbsoluteFunctionDef && !name) {
-            this.functionNames.push(ctx.start.text||'')
+            this.functionNames.push(ctx.start.text || '')
         }
 
         if (name)
             this.functionNames.push(name)
-        
+
         if (this.tsrs.length > 0) {
-            this.tsrs[this.tsrs.length-1].replaceSingle(ctx.start, "var")
-        } 
+            this.tsrs[this.tsrs.length - 1].replaceSingle(ctx.start, "var")
+        }
     }
 
-    visitTerminal(ctx: any) {}
-    visitErrorNode(ctx: any) {}
-    enterEveryRule(ctx: any) {}
-    exitEveryRule(ctx: any) {}
+    visitTerminal(ctx: any) { }
+    visitErrorNode(ctx: any) { }
+    enterEveryRule(ctx: any) { }
+    exitEveryRule(ctx: any) { }
 
     GetData() {
         return this.output
