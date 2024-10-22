@@ -109,7 +109,7 @@ function LanguageSupported(lang: Language): boolean {
 	return false;
 }
 
-export const MIN_FUNCTION_CHARS = 0;
+export const MIN_FUNCTION_CHARS = 110;
 export const MIN_METHOD_LINES = 0;
 export const ParserConstructors = new Map<Language, ParserConstructor<ParserBase>>([
 	[Language.JS, JavascriptParser],

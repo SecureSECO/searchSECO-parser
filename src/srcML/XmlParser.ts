@@ -32,7 +32,7 @@ export default class XMLParser extends ParserBase {
 	private _methodCount = 0;
 	private _currentFile = 0;
 
-	constructor(basePath: string, minMethodChars = 0, minMethodLines = 0, language: Language) {
+	constructor(basePath: string, minMethodLines = 0, minMethodChars = 0, language: Language) {
 		super(basePath, `${language} Parser`, language);
 		this._language = language;
 		this._minMethodChars = minMethodChars;
@@ -65,6 +65,10 @@ export default class XMLParser extends ParserBase {
 		const prev = this._current.GetPrevious();
 		if (this._current.GetTag() === 'function' && this._parseFurther) {
 			const ab = GetHashable(this._current);
+			//console.log(`Method ${ab.GetMethodName()} with ${ab.GetString().length} characters`);
+			//if (ab.GetString().length < 100) {
+			//	console.log(`\t ${ab.GetString()}`);
+			//}
 			if (
 				ab.GetString().length > this._minMethodChars &&
 				this._lineNumber - this._startLastMethod > this._minMethodLines

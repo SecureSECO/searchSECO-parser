@@ -16,6 +16,11 @@ import Python3Listener from './lib/Python3ListenerDerived';
 import Logger from '../../searchSECO-logger/src/Logger';
 import { Language } from '../../Parser';
 
+// The cutoff value for 'short' function bodies can be different for
+// the Python parser in comparison to other parsers.
+// This factor is the factor relative to the srcML parser.
+const FunctionCharFactor: number = 0.9;
+
 /**
  * The implementation of a Python3 parser. This parser inherits from `ParserBase`.
  */
@@ -26,7 +31,7 @@ export default class PythonParser extends ParserBase {
 	constructor(basePath: string, minMethodSize: number, minMethodChars: number) {
 		super(basePath, 'Python Parser', Language.PYTHON);
 		this._minMethodSize = minMethodSize;
-		this._minMethodChars = minMethodChars;
+		this._minMethodChars = FunctionCharFactor * minMethodChars;
 	}
 
 	public override ParseSingle(fileName: string, data: string, clearCache: boolean): HashData[] {

@@ -1,6 +1,6 @@
 /**
  * This program has been developed by students from the bachelor Computer Science at Utrecht University within the Software Project course.
- * © Copyright Utrecht University (Department of Information and Computing Sciences)
+ * ï¿½ Copyright Utrecht University (Department of Information and Computing Sciences)
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -25,7 +25,7 @@ export default class CustomPython3Listener implements Python3Listener {
     protected stop: number
     protected inFunction = false
     protected inSingleStatement = false
-    
+
     constructor(tsr: TokenStreamRewriter, filename: string, minMethodSize: number, minFunctionChars: number) {
         this.baseTSR = tsr
         this.filename = filename
@@ -53,8 +53,8 @@ export default class CustomPython3Listener implements Python3Listener {
 
         const start = this.starts.pop() || 0
         const stop = ctx.stop?.line || 0
-
-        if (stop - start >= this.minMethodSize) {
+        // console.log(`Method ${functionName}\t${functionBody.length}\t${functionBody}`);
+        if (functionBody.length >= this.minFunctionChars && stop - start >= this.minMethodSize) {
             const hashData = new HashData(md5(functionBody), this.filename, functionName, start, stop)
             this.output.push(hashData)
         }
@@ -63,7 +63,7 @@ export default class CustomPython3Listener implements Python3Listener {
 
         this.tsrs.pop()
         if (this.tsrs.length > 0) {
-            this.tsrs[this.tsrs.length-1].replace(ctx.start.tokenIndex, ctx.stop?.tokenIndex || 0, "")
+            this.tsrs[this.tsrs.length - 1].replace(ctx.start.tokenIndex, ctx.stop?.tokenIndex || 0, "")
         }
     }
 
@@ -74,41 +74,39 @@ export default class CustomPython3Listener implements Python3Listener {
     exitFuncbody(ctx: FuncbodyContext) {
         this.functionBodies.pop()
 
-        const tsr = this.tsrs[this.tsrs.length-1]
+        const tsr = this.tsrs[this.tsrs.length - 1]
         this.functionBodies.push(tsr.getText(ctx.sourceInterval))
     }
 
     enterName(ctx: NameContext) {
-        
         if (this.tsrs.length > 0) {
-            const name = this.functionNames[this.functionNames.length-1]
+            const name = this.functionNames[this.functionNames.length - 1]
             if (!name) {
                 this.functionNames.push(ctx.start.text || '')
             }
-    
             if (this.inFunction)
-                this.tsrs[this.tsrs.length-1].replaceSingle(ctx.start, "var")
-            
-        } 
+                this.tsrs[this.tsrs.length - 1].replaceSingle(ctx.start, "var")
+
+        }
     }
 
     enterFunccallname(ctx: FunccallnameContext) {
         if (this.tsrs.length > 0) {
-            this.tsrs[this.tsrs.length-1].replaceSingle(ctx.start, "funccall")
-        } 
+            this.tsrs[this.tsrs.length - 1].replaceSingle(ctx.start, "funccall")
+        }
     }
 
-    enterExpr_stmt_single(){
+    enterExpr_stmt_single() {
         this.inSingleStatement = true
     }
 
-    exitExpr_stmt_single(){
+    exitExpr_stmt_single() {
         this.inSingleStatement = false
     }
 
     enterString(ctx: StringContext) {
         if (this.inSingleStatement && this.tsrs.length > 0) {
-            this.tsrs[this.tsrs.length-1].replace(ctx.start.tokenIndex, ctx.start.tokenIndex, "")
+            this.tsrs[this.tsrs.length - 1].replace(ctx.start.tokenIndex, ctx.start.tokenIndex, "")
         }
     }
 
