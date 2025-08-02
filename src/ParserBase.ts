@@ -122,13 +122,13 @@ export abstract class ParserBase implements IParser {
 			const batch = bufferArray.splice(0, batchSize);
 			const promises = batch.map(([fileName, data], idx) => {
 				// clear antlr cache at the end of the batch
-				Logger.Debug(`Parsing ${fileName}`, Logger.GetCallerLocation());
+				//Logger.Debug(`Parsing ${fileName}`, Logger.GetCallerLocation());
 				const clearCache = idx == batchSize - 1;
 				const hashes = this.ParseSingle(fileName, data, clearCache);
-				Logger.Debug(
+				/*Logger.Debug(
 					`Finished parsing file ${fileName}. Number of methods found: ${hashes.length}`,
 					Logger.GetCallerLocation()
-				);
+				);*/
 				return hashes;
 			});
 			const parsed = await Promise.all(promises);
